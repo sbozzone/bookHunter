@@ -14,8 +14,9 @@ import {
 import AIRecommender from '@/components/ai-recommender';
 import Watchlist from '@/components/watchlist';
 import { WatchlistProvider, useWatchlist } from '@/components/watchlist-provider';
-import { BookMarked, Rss } from 'lucide-react';
+import { BookMarked, Rss, Settings } from 'lucide-react';
 import { Separator } from '../ui/separator';
+import { ThemeSelector } from '../theme-selector';
 
 function SidebarContentWithState() {
   const { watchlist, removeFromWatchlist } = useWatchlist();
@@ -33,6 +34,17 @@ function SidebarContentWithState() {
         watchlist={watchlist}
         removeFromWatchlist={removeFromWatchlist}
       />
+      <Separator />
+      <SidebarGroup>
+        <SidebarGroupLabel className="flex items-center gap-2">
+          <Settings className="size-4" />
+          Settings
+        </SidebarGroupLabel>
+        <div className="px-2">
+            <p className="text-xs text-muted-foreground mb-2">Color Theme</p>
+            <ThemeSelector />
+        </div>
+      </SidebarGroup>
     </>
   );
 }
