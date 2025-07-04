@@ -32,6 +32,7 @@ export default function Watchlist({ watchlist, removeFromWatchlist }: WatchlistP
                 width={40}
                 height={60}
                 className="rounded-sm object-cover"
+                data-ai-hint={`${book.title.split(' ')[0]} ${book.author.split(' ').pop()}`.toLowerCase()}
               />
               <div className="flex-1 overflow-hidden">
                 <p className="text-sm font-semibold truncate">{book.title}</p>
