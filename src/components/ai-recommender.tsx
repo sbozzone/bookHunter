@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
+import Link from 'next/link';
 import { getSuggestions } from '@/app/actions';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
@@ -59,7 +60,12 @@ export default function AIRecommender() {
             {state.suggestions.map((suggestion: string, index: number) => (
               <li key={index} className="flex items-start">
                 <Sparkles className="w-3 h-3 mr-2 mt-1 text-primary shrink-0"/>
-                <span>{suggestion}</span>
+                <Link
+                  href={`/?q=${encodeURIComponent(suggestion)}`}
+                  className="hover:underline hover:text-foreground"
+                >
+                  {suggestion}
+                </Link>
               </li>
             ))}
           </ul>

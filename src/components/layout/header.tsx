@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
@@ -8,10 +8,15 @@ import { SidebarTrigger } from '../ui/sidebar';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
+  initialQuery?: string;
 }
 
-export default function Header({ onSearch }: HeaderProps) {
-  const [query, setQuery] = useState('');
+export default function Header({ onSearch, initialQuery = '' }: HeaderProps) {
+  const [query, setQuery] = useState(initialQuery);
+
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
