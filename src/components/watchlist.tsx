@@ -1,10 +1,11 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from './ui/button';
 import type { Book } from '@/lib/types';
-import { SidebarGroup, SidebarGroupLabel } from './ui/sidebar';
-import { Bookmark, X } from 'lucide-react';
+import { SidebarGroup, SidebarGroupLabel, SidebarGroupAction } from './ui/sidebar';
+import { Bookmark, ExternalLink, X } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 
 interface WatchlistProps {
@@ -19,6 +20,12 @@ export default function Watchlist({ watchlist, removeFromWatchlist }: WatchlistP
         <Bookmark className="size-4" />
         My Watchlist
       </SidebarGroupLabel>
+      <SidebarGroupAction asChild>
+        <Link href="/watchlist">
+          <ExternalLink />
+          <span className="sr-only">Manage Watchlist</span>
+        </Link>
+      </SidebarGroupAction>
       <ScrollArea className="h-64">
         <div className="space-y-2 pr-4">
         {watchlist.length === 0 ? (
