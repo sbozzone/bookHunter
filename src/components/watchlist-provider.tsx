@@ -8,12 +8,14 @@ interface WatchlistContextType {
   addToWatchlist: (book: Book) => void;
   removeFromWatchlist: (bookId: string) => void;
   isBookInWatchlist: (bookId: string) => boolean;
+  isInitialized: boolean;
 }
 
 const WatchlistContext = createContext<WatchlistContextType | undefined>(undefined);
 
 export function WatchlistProvider({ children }: { children: ReactNode }) {
   const [watchlist, setWatchlist] = useState<Book[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     try {
@@ -23,16 +25,20 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.warn('Error reading localStorage.', error);
+    } finally {
+      setIsInitialized(true);
     }
   }, []);
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem('bibliosleuth-watchlist', JSON.stringify(watchlist));
-    } catch (error) {
-       console.warn('Error setting localStorage.', error);
+    if (isInitialized) {
+      try {
+        window.localStorage.setItem('bibliosleuth-watchlist', JSON.stringify(watchlist));
+      } catch (error) {
+         console.warn('Error setting localStorage.', error);
+      }
     }
-  }, [watchlist]);
+  }, [watchlist, isInitialized]);
 
 
   const addToWatchlist = (book: Book) => {
@@ -54,7 +60,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
 
   return (
     <WatchlistContext.Provider
-      value={{ watchlist, addToWatchlist, removeFromWatchlist, isBookInWatchlist }}
+      value={{ watchlist, addToWatchlist, removeFromWatchlist, isBookInWatchlist, isInitialized }}
     >
       {children}
     </WatchlistContext.Provider>
