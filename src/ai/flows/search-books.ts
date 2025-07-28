@@ -52,7 +52,7 @@ export async function searchBooks(
     return {
       ...book,
       id: uuidv4(),
-      coverUrl: book.coverUrl && book.coverUrl.startsWith('http') ? book.coverUrl : 'https://placehold.co/300x450.png',
+      coverUrl: book.coverUrl && (book.coverUrl.startsWith('http://') || book.coverUrl.startsWith('https://')) ? book.coverUrl : 'https://placehold.co/300x450.png',
       sources: [
         { name: 'Libby', availability: 'Check', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${titleQuery}` },
         { name: 'Hoopla', availability: 'Check', url: `https://www.hoopladigital.com/search?q=${titleQuery}` },
