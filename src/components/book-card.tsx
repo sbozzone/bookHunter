@@ -33,13 +33,13 @@ const SourceInfo = ({ source }: { source: Source }) => {
 
 
 export default function BookCard({ book }: { book: Book }) {
-  const coverUrl = book.coverUrl && book.coverUrl.startsWith('http') ? book.coverUrl : `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(book.title + ' ' + book.author + ' book cover')}`;
+  const googleImagesUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(book.title + ' ' + book.author + ' book cover')}`;
   
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-shadow duration-300 hover:shadow-xl">
       <CardHeader className="flex flex-row items-start gap-4 p-4">
         <div className="w-[100px] h-[150px] flex-shrink-0 rounded-md bg-muted flex items-center justify-center text-muted-foreground relative">
-          <a href={coverUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full">
+          <a href={googleImagesUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full">
             <img 
                 src={book.coverUrl.startsWith('http') ? book.coverUrl : 'https://placehold.co/300x450.png'}
                 alt={`Cover of ${book.title}`}
