@@ -1,6 +1,7 @@
 'use server';
 
 import { suggestSimilarBooks } from '@/ai/flows/suggest-similar-books';
+import { searchBooks } from '@/ai/flows/search-books';
 import { z } from 'zod';
 
 const SuggestionSchema = z.object({
@@ -29,4 +30,34 @@ export async function getSuggestions(prevState: any, formData: FormData) {
       suggestions: [],
     };
   }
+}
+
+const SearchSchema = z.object({
+  query: z.string(),
+});
+
+export async function getBooks(query: string) {
+    const validatedFields = SearchSchema.safeParse({ query });
+
+    if (!validatedFields.success) {
+        return {
+            error: 'Invalid query.',
+            books: [],
+        };
+    }
+
+    if (validatedFields.data.query.trim() === '') {
+      return { books: [] };
+    }
+
+    try {
+        const result = await searchBooks({ query: validatedFields.data.query });
+        return { books: result.books };
+    } catch (error) {
+        console.error(error);
+        return {
+            error: 'Failed to get books. Please try again.',
+            books: [],
+        };
+    }
 }
