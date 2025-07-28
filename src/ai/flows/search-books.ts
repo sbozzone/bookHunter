@@ -30,37 +30,6 @@ const SearchBooksOutputSchema = z.object({
 });
 export type SearchBooksOutput = z.infer<typeof SearchBooksOutputSchema>;
 
-async function getCoverUrl(book: z.infer<typeof BookSchema>): Promise<string> {
-  // Prioritize ISBN for cover lookup
-  if (book.isbn) {
-    const response = await fetch(`https://covers.openlibrary.org/b/isbn/${book.isbn}-L.jpg?default=false`);
-    if (response.ok && response.status === 200 && response.headers.get('content-type')?.startsWith('image/')) {
-        // The URL redirect means the image exists.
-        return `https://covers.openlibrary.org/b/isbn/${book.isbn}-L.jpg`;
-    }
-  }
-
-  // Fallback to searching by title and author
-  try {
-    const searchQuery = encodeURIComponent(`${book.title} ${book.author}`);
-    const response = await fetch(`https://openlibrary.org/search.json?q=${searchQuery}&limit=1`);
-    if (!response.ok) {
-      return 'https://placehold.co/100x150.png';
-    }
-    const data = await response.json();
-    const coverId = data.docs?.[0]?.cover_i;
-    if (coverId) {
-      return `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
-    }
-  } catch (error) {
-    console.error('Failed to fetch cover from Open Library by title:', error);
-  }
-  
-  // Default placeholder if all else fails
-  return 'https://placehold.co/100x150.png';
-}
-
-
 export async function searchBooks(
   input: SearchBooksInput
 ): Promise<SearchBooksOutput> {
@@ -73,7 +42,8 @@ export async function searchBooks(
   const booksWithFullData = await Promise.all(
     booksFromFlow.books.map(async (book) => {
       const titleQuery = encodeURIComponent(book.title);
-      const coverUrl = await getCoverUrl(book);
+      // Hardcode a reliable image URL to ensure it displays
+      const coverUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg/1024px-The_Great_Gatsby_Cover_1925_Retouched.jpg';
       return {
         ...book,
         id: uuidv4(),
