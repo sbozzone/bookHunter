@@ -31,19 +31,21 @@ const SearchBooksOutputSchema = z.object({
 export type SearchBooksOutput = z.infer<typeof SearchBooksOutputSchema>;
 
 async function getCoverUrl(book: z.infer<typeof BookSchema>): Promise<string> {
-  const fallbackUrl = 'https://placehold.co/300x450.png';
+  const svgPlaceholder = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
+    <rect fill="#e0e0e0" width="300" height="450"></rect>
+    <text fill="rgba(0,0,0,0.3)" font-family="sans-serif" font-size="24" text-anchor="middle" x="150" y="225">Cover Not Available</text>
+  </svg>`;
+  const fallbackUrl = `data:image/svg+xml;base64,${Buffer.from(svgPlaceholder).toString('base64')}`;
 
   if (book.isbn) {
     const response = await fetch(`https://covers.openlibrary.org/b/isbn/${book.isbn}-L.jpg?default=false`);
     if (response.ok && response.url) {
-      // The API redirects to a placeholder if no image is found, check for that
       if (!response.url.includes('olid-all-0.png')) {
         return response.url;
       }
     }
   }
 
-  // Fallback to searching by title and author if ISBN fails or is missing
   try {
     const query = encodeURIComponent(`${book.title} ${book.author}`);
     const response = await fetch(`https://openlibrary.org/search.json?q=${query}`);
