@@ -43,7 +43,7 @@ export async function searchBooks(
     return {
       ...book,
       id: uuidv4(),
-      coverUrl: 'https://placehold.co/300x450.png', // Hardcoded placeholder
+      coverUrl: 'https://i0.wp.com/americanwritersmuseum.org/wp-content/uploads/2018/02/CK-3.jpg?resize=267%2C400&ssl=1', // Hardcoded image URL
       sources: [
         { name: 'Libby', availability: 'Check', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${titleQuery}` },
         { name: 'Hoopla', availability: 'Check', url: `https://www.hoopladigital.com/search?q=${titleQuery}` },
