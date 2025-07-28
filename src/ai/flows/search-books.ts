@@ -29,12 +29,6 @@ const SearchBooksOutputSchema = z.object({
 });
 export type SearchBooksOutput = z.infer<typeof SearchBooksOutputSchema>;
 
-function getMockPrice(condition: 'new' | 'used'): string {
-    const basePrice = Math.random() * 20 + 5;
-    const price = condition === 'used' ? basePrice * 0.6 : basePrice;
-    return `$${price.toFixed(2)}`;
-}
-
 export async function searchBooks(
   input: SearchBooksInput
 ): Promise<SearchBooksOutput> {
@@ -46,18 +40,16 @@ export async function searchBooks(
 
   const booksWithFullData = booksFromFlow.books.map(book => {
     const titleQuery = encodeURIComponent(book.title);
-    const usedPrice = getMockPrice('used');
-    const newPrice = getMockPrice('new');
     return {
       ...book,
       id: uuidv4(),
-      coverUrl: 'https://placehold.co/300x450.png',
+      coverUrl: 'https://placehold.co/300x450.png', // Hardcoded placeholder
       sources: [
         { name: 'Libby', availability: 'Check', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${titleQuery}` },
         { name: 'Hoopla', availability: 'Check', url: `https://www.hoopladigital.com/search?q=${titleQuery}` },
         { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${titleQuery}+filetype%3Apdf` },
-        { name: 'Amazon Used', price: usedPrice, availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}&condition=used` },
-        { name: 'Amazon New', price: newPrice, availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}` },
+        { name: 'Amazon Used', price: '$9.99', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}&condition=used` },
+        { name: 'Amazon New', price: '$19.99', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}` },
       ],
     }
   });
