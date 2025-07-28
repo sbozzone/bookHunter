@@ -33,7 +33,7 @@ const SourceInfo = ({ source }: { source: Source }) => {
 };
 
 
-export default function BookCard({ book }: { book: Book }) {
+export default function BookCard({ book, priority = false }: { book: Book, priority?: boolean }) {
   const googleImagesUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(book.title + ' ' + book.author + ' book cover')}`;
   
   return (
@@ -47,6 +47,7 @@ export default function BookCard({ book }: { book: Book }) {
                 width={100}
                 height={150}
                 className="w-full h-full object-cover rounded-md"
+                priority={priority}
             />
           </a>
         </div>
