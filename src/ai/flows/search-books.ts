@@ -83,7 +83,7 @@ const prompt = ai.definePrompt({
   tools: [getPriceTool],
   prompt: `You are a book search engine. Find up to 6 books matching the query "{{query}}". 
 For each book, provide the title, author, a brief description, a URL for the book cover image, and the available formats (Audiobook, eBook, Print).
-Use a search engine to find a suitable public image URL for each book cover. The image URL must be a direct link to an image file (e.g., .png, .jpg).
+Use a search engine to find a suitable public image URL for each book cover. The image URL must be a direct link to an image file (e.g., .png, .jpg). Do not use placeholder images.
 Also, use the getBookPrice tool to find the estimated price for both a 'new' and a 'used' copy of each book.
 If no books are found, return an empty list.`,
 });

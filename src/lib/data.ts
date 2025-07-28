@@ -91,19 +91,4 @@ export const mockBooks: Book[] = [
       { name: 'Amazon New', price: '$17.99', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('Dune')}` },
     ],
   },
-  {
-    id: '7',
-    title: "Analytics the Right Way: A Business Leader's Guide to Putting Data to Productive Use",
-    author: 'Dr. Kirk Materne',
-    coverUrl: 'https://placehold.co/300x450.png',
-    description: "A business leader's guide to putting data to productive use.",
-    formats: ['eBook', 'Print'],
-    sources: [
-      { name: 'Libby', availability: 'Available', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent("Analytics the Right Way")}` },
-      { name: 'Hoopla', availability: 'Unavailable', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent("Analytics the Right Way")}` },
-      { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent("Analytics the Right Way")}+filetype%3Apdf` },
-      { name: 'Amazon Used', price: '$15.50', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent("Analytics the Right Way")}` },
-      { name: 'Amazon New', price: '$25.99', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent("Analytics the Right Way")}` },
-    ],
-  },
 ];
