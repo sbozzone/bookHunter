@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import type { Book, Source } from '@/lib/types';
 import { Headphones, BookOpen, Book as BookIcon } from 'lucide-react';
 import { AddToWatchlistButton } from './add-to-watchlist-button';
+import Image from 'next/image';
 
 const formatIcons: Record<Book['formats'][number], React.ReactNode> = {
   Audiobook: <Headphones className="w-4 h-4" />,
@@ -38,7 +39,7 @@ export default function BookCard({ book }: { book: Book }) {
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-shadow duration-300 hover:shadow-xl">
       <CardHeader className="flex flex-row items-start gap-4 p-4">
-        <img
+        <Image
           src={book.coverUrl}
           alt={`Cover of ${book.title}`}
           width={100}
