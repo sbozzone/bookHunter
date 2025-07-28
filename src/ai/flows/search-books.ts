@@ -29,6 +29,25 @@ const SearchBooksOutputSchema = z.object({
 });
 export type SearchBooksOutput = z.infer<typeof SearchBooksOutputSchema>;
 
+async function getCoverUrl(title: string, author: string): Promise<string> {
+  try {
+    const searchQuery = encodeURIComponent(`${title} ${author}`);
+    const response = await fetch(`https://openlibrary.org/search.json?q=${searchQuery}&limit=1`);
+    if (!response.ok) {
+      return 'https://placehold.co/100x150.png';
+    }
+    const data = await response.json();
+    const coverId = data.docs?.[0]?.cover_i;
+    if (coverId) {
+      return `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
+    }
+  } catch (error) {
+    console.error('Failed to fetch cover from Open Library:', error);
+  }
+  return 'https://placehold.co/100x150.png';
+}
+
+
 export async function searchBooks(
   input: SearchBooksInput
 ): Promise<SearchBooksOutput> {
@@ -38,21 +57,25 @@ export async function searchBooks(
     return { books: [] };
   }
 
-  const booksWithFullData = booksFromFlow.books.map(book => {
-    const titleQuery = encodeURIComponent(book.title);
-    return {
-      ...book,
-      id: uuidv4(),
-      coverUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg/1024px-The_Great_Gatsby_Cover_1925_Retouched.jpg', // Hardcoded image URL
-      sources: [
-        { name: 'Libby', availability: 'Check', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${titleQuery}` },
-        { name: 'Hoopla', availability: 'Check', url: `https://www.hoopladigital.com/search?q=${titleQuery}` },
-        { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${titleQuery}+filetype%3Apdf` },
-        { name: 'Amazon Used', price: '$9.99', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}&condition=used` },
-        { name: 'Amazon New', price: '$19.99', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}` },
-      ],
-    }
-  });
+  const booksWithFullData = await Promise.all(
+    booksFromFlow.books.map(async (book) => {
+      const titleQuery = encodeURIComponent(book.title);
+      const coverUrl = await getCoverUrl(book.title, book.author);
+      return {
+        ...book,
+        id: uuidv4(),
+        coverUrl,
+        sources: [
+          { name: 'Libby', availability: 'Check', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${titleQuery}` },
+          { name: 'Hoopla', availability: 'Check', url: `https://www.hoopladigital.com/search?q=${titleQuery}` },
+          { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${titleQuery}+filetype%3Apdf` },
+          { name: 'Amazon Used', price: '$9.99', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}&condition=used` },
+          { name: 'Amazon New', price: '$19.99', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}` },
+        ],
+      };
+    })
+  );
+  
   return { books: booksWithFullData };
 }
 
