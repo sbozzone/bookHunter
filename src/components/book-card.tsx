@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import {
   Card,
   CardContent,
@@ -40,9 +41,11 @@ export default function BookCard({ book }: { book: Book }) {
       <CardHeader className="flex flex-row items-start gap-4 p-4">
         <div className="w-[100px] h-[150px] flex-shrink-0 rounded-md bg-muted flex items-center justify-center text-muted-foreground relative">
           <a href={googleImagesUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full">
-            <img 
+            <Image 
                 src={book.coverUrl}
                 alt={`Cover of ${book.title}`}
+                width={100}
+                height={150}
                 className="w-full h-full object-cover rounded-md"
             />
           </a>
