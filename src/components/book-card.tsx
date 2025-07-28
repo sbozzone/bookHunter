@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import {
   Card,
   CardContent,
@@ -34,17 +33,17 @@ const SourceInfo = ({ source }: { source: Source }) => {
 
 
 export default function BookCard({ book }: { book: Book }) {
-  const coverHint = `${book.title.split(' ')[0]} ${book.author.split(' ').pop()}`.toLowerCase();
+  const coverHint = `${book.title} book cover`;
   
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-shadow duration-300 hover:shadow-xl">
       <CardHeader className="flex flex-row items-start gap-4 p-4">
-        <Image
+        <img
           src={book.coverUrl}
           alt={`Cover of ${book.title}`}
           width={100}
           height={150}
-          className="rounded-md object-cover shadow-md"
+          className="rounded-md object-cover shadow-md w-[100px] h-[150px]"
           data-ai-hint={coverHint}
         />
         <div className="flex-1">
