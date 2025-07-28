@@ -43,7 +43,7 @@ export async function searchBooks(
     return {
       ...book,
       id: uuidv4(),
-      coverUrl: 'https://placehold.co/300x450.png', // Hardcoded placeholder
+      coverUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg/1024px-The_Great_Gatsby_Cover_1925_Retouched.jpg', // Hardcoded image URL
       sources: [
         { name: 'Libby', availability: 'Check', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${titleQuery}` },
         { name: 'Hoopla', availability: 'Check', url: `https://www.hoopladigital.com/search?q=${titleQuery}` },
