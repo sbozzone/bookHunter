@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 import {
   SidebarProvider,
   Sidebar,
@@ -55,10 +56,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       <SidebarProvider defaultOpen={true}>
         <Sidebar>
           <SidebarHeader>
-            <div className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <BookMarked className="size-8 text-primary" />
               <h1 className="text-2xl font-bold font-headline">Bibliosleuth</h1>
-            </div>
+            </Link>
           </SidebarHeader>
           <SidebarContent className="p-0">
              <SidebarContentWithState />
