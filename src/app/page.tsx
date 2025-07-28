@@ -6,7 +6,6 @@ import AppLayout from '@/components/layout/app-layout';
 import Header from '@/components/layout/header';
 import BookResults from '@/components/book-results';
 import { Skeleton } from '@/components/ui/skeleton';
-import { mockBooks } from '@/lib/data';
 import type { Book } from '@/lib/types';
 import { getBooks } from '@/app/actions';
 
@@ -46,7 +45,7 @@ function SearchPage() {
   const router = useRouter();
   const pathname = usePathname();
   const [submittedQuery, setSubmittedQuery] = useState('');
-  const [displayedBooks, setDisplayedBooks] = useState<Book[]>(mockBooks);
+  const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -55,13 +54,10 @@ function SearchPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (submittedQuery.trim() === '') {
-      setDisplayedBooks(mockBooks);
-      return;
-    }
-
+    const queryToSearch = submittedQuery.trim() === '' ? 'Featured Books' : submittedQuery;
+    
     startTransition(async () => {
-      const result = await getBooks(submittedQuery);
+      const result = await getBooks(queryToSearch);
       if (result.books) {
         setDisplayedBooks(result.books);
       }
