@@ -21,6 +21,7 @@ const BookSchema = z.object({
   title: z.string().describe('The title of the book.'),
   author: z.string().describe('The author of the book.'),
   description: z.string().describe('A short description of the book.'),
+  isbn: z.string().optional().describe('The ISBN-13 of the book, if available.'),
   formats: z.array(z.enum(['Audiobook', 'eBook', 'Print'])).describe('The available formats for the book.'),
 });
 
@@ -29,9 +30,19 @@ const SearchBooksOutputSchema = z.object({
 });
 export type SearchBooksOutput = z.infer<typeof SearchBooksOutputSchema>;
 
-async function getCoverUrl(title: string, author: string): Promise<string> {
+async function getCoverUrl(book: z.infer<typeof BookSchema>): Promise<string> {
+  // Prioritize ISBN for cover lookup
+  if (book.isbn) {
+    const response = await fetch(`https://covers.openlibrary.org/b/isbn/${book.isbn}-L.jpg?default=false`);
+    if (response.ok && response.status === 200 && response.headers.get('content-type')?.startsWith('image/')) {
+        // The URL redirect means the image exists.
+        return `https://covers.openlibrary.org/b/isbn/${book.isbn}-L.jpg`;
+    }
+  }
+
+  // Fallback to searching by title and author
   try {
-    const searchQuery = encodeURIComponent(`${title} ${author}`);
+    const searchQuery = encodeURIComponent(`${book.title} ${book.author}`);
     const response = await fetch(`https://openlibrary.org/search.json?q=${searchQuery}&limit=1`);
     if (!response.ok) {
       return 'https://placehold.co/100x150.png';
@@ -42,8 +53,10 @@ async function getCoverUrl(title: string, author: string): Promise<string> {
       return `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
     }
   } catch (error) {
-    console.error('Failed to fetch cover from Open Library:', error);
+    console.error('Failed to fetch cover from Open Library by title:', error);
   }
+  
+  // Default placeholder if all else fails
   return 'https://placehold.co/100x150.png';
 }
 
@@ -60,7 +73,7 @@ export async function searchBooks(
   const booksWithFullData = await Promise.all(
     booksFromFlow.books.map(async (book) => {
       const titleQuery = encodeURIComponent(book.title);
-      const coverUrl = await getCoverUrl(book.title, book.author);
+      const coverUrl = await getCoverUrl(book);
       return {
         ...book,
         id: uuidv4(),
@@ -84,7 +97,7 @@ const prompt = ai.definePrompt({
   input: {schema: SearchBooksInputSchema},
   output: {schema: SearchBooksOutputSchema},
   prompt: `You are a book search engine. Find up to 6 books matching the query "{{query}}". 
-For each book, provide the title, author, a brief description, and the available formats (Audiobook, eBook, Print).
+For each book, provide the title, author, a brief description, the available formats (Audiobook, eBook, Print), and the book's ISBN-13 if available.
 If no books are found, return an empty list.`,
 });
 
