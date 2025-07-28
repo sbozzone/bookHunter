@@ -34,17 +34,17 @@ const SourceInfo = ({ source }: { source: Source }) => {
 
 export default function BookCard({ book }: { book: Book }) {
   const googleImagesUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(book.title + ' ' + book.author + ' book cover')}`;
-  
+  const unsplashUrl = `https://source.unsplash.com/300x450/?book,${encodeURIComponent(book.title.split(' ')[0])}`;
+
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-shadow duration-300 hover:shadow-xl">
       <CardHeader className="flex flex-row items-start gap-4 p-4">
         <div className="w-[100px] h-[150px] flex-shrink-0 rounded-md bg-muted flex items-center justify-center text-muted-foreground relative">
           <a href={googleImagesUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full">
             <img 
-                src={book.coverUrl.startsWith('http') ? book.coverUrl : 'https://placehold.co/300x450.png'}
+                src={unsplashUrl}
                 alt={`Cover of ${book.title}`}
                 className="w-full h-full object-cover rounded-md"
-                data-ai-hint={`${book.title.split(' ')[0]} ${book.author.split(' ').pop()}`.toLowerCase()}
             />
           </a>
         </div>
