@@ -60,6 +60,11 @@ export default function BookCard({ book, priority = false }: { book: Book, prior
         <div className="space-y-1">
             {book.sources && book.sources.map(source => <SourceInfo key={source.name} source={source} />)}
         </div>
+        {book.isbn && (
+          <div className="mt-2 pt-2 border-t border-dashed">
+            <p className="text-xs text-muted-foreground">ISBN: {book.isbn}</p>
+          </div>
+        )}
       </CardContent>
       <CardFooter className="p-4 pt-0 mt-auto">
         <AddToWatchlistButton book={book} />

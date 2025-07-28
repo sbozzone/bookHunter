@@ -13,4 +13,5 @@ export type Book = {
   description: string;
   sources: Source[];
   formats: ('Audiobook' | 'eBook' | 'Print')[];
+  isbn?: string;
 };
