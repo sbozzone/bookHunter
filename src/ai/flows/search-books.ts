@@ -48,7 +48,7 @@ export async function searchBooks(
   const booksWithFullData = booksFromFlow.books.map(book => {
     const titleQuery = encodeURIComponent(book.title);
     const usedPrice = getMockPrice('used');
-    const newPrice = getMockPrice('new');
+    const newPrice = getMockprice('new');
     return {
       ...book,
       id: uuidv4(),
