@@ -21,7 +21,6 @@ const BookSchema = z.object({
   title: z.string().describe('The title of the book.'),
   author: z.string().describe('The author of the book.'),
   description: z.string().describe('A short description of the book.'),
-  coverUrl: z.string().url().describe('The URL of the book cover image.'),
   formats: z.array(z.enum(['Audiobook', 'eBook', 'Print'])).describe('The available formats for the book.'),
 });
 
@@ -52,7 +51,7 @@ export async function searchBooks(
     return {
       ...book,
       id: uuidv4(),
-      coverUrl: book.coverUrl && (book.coverUrl.startsWith('http://') || book.coverUrl.startsWith('https://')) ? book.coverUrl : 'https://placehold.co/300x450.png',
+      coverUrl: 'https://placehold.co/300x450.png',
       sources: [
         { name: 'Libby', availability: 'Check', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${titleQuery}` },
         { name: 'Hoopla', availability: 'Check', url: `https://www.hoopladigital.com/search?q=${titleQuery}` },
@@ -70,8 +69,7 @@ const prompt = ai.definePrompt({
   input: {schema: SearchBooksInputSchema},
   output: {schema: SearchBooksOutputSchema},
   prompt: `You are a book search engine. Find up to 6 books matching the query "{{query}}". 
-For each book, provide the title, author, a brief description, a URL for the book cover image, and the available formats (Audiobook, eBook, Print).
-Use a search engine to find a suitable public image URL for each book cover. The image URL must be a direct link to an image file (e.g., .png, .jpg). Do not use placeholder images.
+For each book, provide the title, author, a brief description, and the available formats (Audiobook, eBook, Print).
 If no books are found, return an empty list.`,
 });
 

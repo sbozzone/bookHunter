@@ -33,7 +33,7 @@ const SourceInfo = ({ source }: { source: Source }) => {
 
 
 export default function BookCard({ book }: { book: Book }) {
-  const coverUrl = book.coverUrl && book.coverUrl.startsWith('http') ? book.coverUrl : 'https://placehold.co/100x150.png';
+  const coverUrl = book.coverUrl && book.coverUrl.startsWith('http') ? book.coverUrl : 'https://placehold.co/300x450.png';
   
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-shadow duration-300 hover:shadow-xl">
@@ -61,7 +61,7 @@ export default function BookCard({ book }: { book: Book }) {
       </CardHeader>
       <CardContent className="p-4 pt-0 flex-grow">
         <div className="space-y-1">
-            {book.sources.map(source => <SourceInfo key={source.name} source={source} />)}
+            {book.sources && book.sources.map(source => <SourceInfo key={source.name} source={source} />)}
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0 mt-auto">
