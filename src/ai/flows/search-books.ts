@@ -22,6 +22,8 @@ const BookSchema = z.object({
   author: z.string().describe('The author of the book.'),
   description: z.string().describe('A short description of the book.'),
   formats: z.array(z.enum(['Audiobook', 'eBook', 'Print'])).describe('The available formats for the book.'),
+  usedPrice: z.string().optional().describe('The estimated price for a used copy of the book.'),
+  newPrice: z.string().optional().describe('The estimated price for a new copy of the book.'),
 });
 
 const SearchBooksOutputSchema = z.object({
@@ -48,19 +50,41 @@ export async function searchBooks(
         { name: 'Libby', availability: 'Check', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${titleQuery}` },
         { name: 'Hoopla', availability: 'Check', url: `https://www.hoopladigital.com/search?q=${titleQuery}` },
         { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${titleQuery}+filetype%3Apdf` },
-        { name: 'Amazon Used', price: 'Check', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}` },
-        { name: 'Amazon New', price: 'Check', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}` },
+        { name: 'Amazon Used', price: book.usedPrice || 'Check', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}&condition=used` },
+        { name: 'Amazon New', price: book.newPrice || 'Check', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}` },
       ],
     }
   });
   return { books: booksWithFullData };
 }
 
+const getPriceTool = ai.defineTool(
+    {
+        name: 'getBookPrice',
+        description: 'Get the estimated price of a book from a retailer.',
+        inputSchema: z.object({
+            title: z.string().describe('The title of the book.'),
+            condition: z.enum(['new', 'used']).describe('The condition of the book.'),
+        }),
+        outputSchema: z.string(),
+    },
+    async (input) => {
+        // This is a mock price. In a real app, you'd call an API.
+        const randomPrice = (Math.random() * 20 + 5).toFixed(2);
+        return `$${randomPrice}`;
+    }
+);
+
+
 const prompt = ai.definePrompt({
   name: 'searchBooksPrompt',
   input: {schema: SearchBooksInputSchema},
   output: {schema: SearchBooksOutputSchema},
-  prompt: `You are a book search engine. Find up to 6 books matching the query "{{query}}". For each book, provide the title, author, a brief description, and the available formats (Audiobook, eBook, Print). If no books are found, return an empty list.`,
+  tools: [getPriceTool],
+  prompt: `You are a book search engine. Find up to 6 books matching the query "{{query}}". 
+For each book, provide the title, author, a brief description, and the available formats (Audiobook, eBook, Print).
+Also, use the getBookPrice tool to find the estimated price for both a 'new' and a 'used' copy of each book.
+If no books are found, return an empty list.`,
 });
 
 const searchBooksFlow = ai.defineFlow(
