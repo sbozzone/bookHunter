@@ -33,20 +33,16 @@ const SourceInfo = ({ source }: { source: Source }) => {
 
 
 export default function BookCard({ book, priority = false }: { book: Book, priority?: boolean }) {
-  const googleImagesUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(book.title + ' ' + book.author + ' book cover')}`;
-  
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-shadow duration-300 hover:shadow-xl">
       <CardHeader className="flex flex-row items-start gap-4 p-4">
-        <a href={googleImagesUrl} target="_blank" rel="noopener noreferrer" className="w-[100px] h-[150px] flex-shrink-0">
-             <img
-              src={book.coverUrl}
-              alt={`Cover of ${book.title}`}
-              width={100}
-              height={150}
-              className="w-full h-full object-cover rounded-md"
-            />
-        </a>
+        <img
+          src={book.coverUrl}
+          alt={`Cover of ${book.title}`}
+          width={100}
+          height={150}
+          className="w-[100px] h-[150px] object-cover rounded-md flex-shrink-0"
+        />
         <div className="flex-1">
           <CardTitle className="text-lg font-headline">{book.title}</CardTitle>
           <CardDescription>by {book.author}</CardDescription>
