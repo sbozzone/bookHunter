@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Book, Source } from '@/lib/types';
-import { Headphones, BookOpen, Book as BookIcon } from 'lucide-react';
+import { Headphones, BookOpen, Book as BookIcon, Image as ImageIcon } from 'lucide-react';
 import { AddToWatchlistButton } from './add-to-watchlist-button';
 
 const formatIcons: Record<Book['formats'][number], React.ReactNode> = {
@@ -33,20 +33,14 @@ const SourceInfo = ({ source }: { source: Source }) => {
 
 
 export default function BookCard({ book }: { book: Book }) {
-  const coverHint = `${book.title} book cover`;
+  const coverSearchUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(book.title + ' ' + book.author + ' book cover')}`;
   
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-shadow duration-300 hover:shadow-xl">
       <CardHeader className="flex flex-row items-start gap-4 p-4">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={book.coverUrl}
-          alt={`Cover of ${book.title}`}
-          width={100}
-          height={150}
-          className="rounded-md object-cover shadow-md w-[100px] h-[150px]"
-          data-ai-hint={coverHint}
-        />
+        <a href={coverSearchUrl} target="_blank" rel="noopener noreferrer" className="w-[100px] h-[150px] flex-shrink-0 rounded-md bg-muted flex items-center justify-center text-muted-foreground hover:bg-muted/80">
+          <ImageIcon className="w-10 h-10" />
+        </a>
         <div className="flex-1">
           <CardTitle className="text-lg font-headline">{book.title}</CardTitle>
           <CardDescription>by {book.author}</CardDescription>
