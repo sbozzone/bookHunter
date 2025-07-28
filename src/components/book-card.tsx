@@ -23,7 +23,7 @@ const SourceInfo = ({ source }: { source: Source }) => {
   return (
     <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-xs flex items-center justify-between p-2 rounded-md hover:bg-muted transition-colors">
         <span className="font-medium">{source.name}</span>
-        {source.price && source.price !== 'Check' ? (
+        {source.price ? (
           <Badge variant="outline" className="text-sm">{source.price}</Badge>
         ) : (
           <Badge variant={available ? 'secondary' : 'destructive'}>{source.availability}</Badge>
