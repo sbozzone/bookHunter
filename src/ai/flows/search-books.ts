@@ -25,7 +25,7 @@ const BookSchema = z.object({
 });
 
 const SearchBooksOutputSchema = z.object({
-  books: z.array(BookSchema),
+  books: z.array(BookSchema).describe('A list of books found. Can be an empty list.'),
 });
 export type SearchBooksOutput = z.infer<typeof SearchBooksOutputSchema>;
 
@@ -33,6 +33,11 @@ export async function searchBooks(
   input: SearchBooksInput
 ): Promise<SearchBooksOutput> {
   const booksFromFlow = await searchBooksFlow(input);
+
+  if (!booksFromFlow || !booksFromFlow.books) {
+    return { books: [] };
+  }
+
   const booksWithFullData = booksFromFlow.books.map(book => {
     const titleQuery = encodeURIComponent(book.title);
     return {
@@ -55,7 +60,7 @@ const prompt = ai.definePrompt({
   name: 'searchBooksPrompt',
   input: {schema: SearchBooksInputSchema},
   output: {schema: SearchBooksOutputSchema},
-  prompt: `You are a book search engine. Find up to 6 books matching the query "{{query}}". For each book, provide the title, author, a brief description, and the available formats (Audiobook, eBook, Print).`,
+  prompt: `You are a book search engine. Find up to 6 books matching the query "{{query}}". For each book, provide the title, author, a brief description, and the available formats (Audiobook, eBook, Print). If no books are found, return an empty list.`,
 });
 
 const searchBooksFlow = ai.defineFlow(
@@ -66,6 +71,6 @@ const searchBooksFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    return output || { books: [] };
   }
 );
