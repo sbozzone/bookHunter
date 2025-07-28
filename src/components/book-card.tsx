@@ -39,18 +39,15 @@ export default function BookCard({ book, priority = false }: { book: Book, prior
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-shadow duration-300 hover:shadow-xl">
       <CardHeader className="flex flex-row items-start gap-4 p-4">
-        <div className="w-[100px] h-[150px] flex-shrink-0 rounded-md bg-muted flex items-center justify-center text-muted-foreground relative">
-          <a href={googleImagesUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full">
-            <Image 
+        <a href={googleImagesUrl} target="_blank" rel="noopener noreferrer" className="w-[100px] h-[150px] flex-shrink-0">
+            <img 
                 src={book.coverUrl}
                 alt={`Cover of ${book.title}`}
                 width={100}
                 height={150}
                 className="w-full h-full object-cover rounded-md"
-                priority={priority}
             />
-          </a>
-        </div>
+        </a>
         <div className="flex-1">
           <CardTitle className="text-lg font-headline">{book.title}</CardTitle>
           <CardDescription>by {book.author}</CardDescription>
