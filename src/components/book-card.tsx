@@ -44,7 +44,6 @@ export default function BookCard({ book }: { book: Book }) {
                 src={book.coverUrl}
                 alt={`Cover of ${book.title}`}
                 className="w-full h-full object-cover rounded-md"
-                data-ai-hint={`${book.title.split(' ').slice(0, 2).join(' ').toLowerCase()}`}
             />
           </a>
         </div>
