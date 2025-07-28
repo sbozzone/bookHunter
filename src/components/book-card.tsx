@@ -41,7 +41,7 @@ export default function BookCard({ book }: { book: Book }) {
         <div className="w-[100px] h-[150px] flex-shrink-0 rounded-md bg-muted flex items-center justify-center text-muted-foreground relative">
           <a href={googleImagesUrl} target="_blank" rel="noopener noreferrer" className="w-full h-full">
             <img 
-                src={book.coverUrl || 'https://placehold.co/300x450.png'}
+                src="https://placehold.co/300x450.png"
                 alt={`Cover of ${book.title}`}
                 className="w-full h-full object-cover rounded-md"
                 data-ai-hint={`${book.title.split(' ').slice(0, 2).join(' ').toLowerCase()}`}
