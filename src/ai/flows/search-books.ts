@@ -30,6 +30,36 @@ const SearchBooksOutputSchema = z.object({
 });
 export type SearchBooksOutput = z.infer<typeof SearchBooksOutputSchema>;
 
+async function getCoverUrl(book: z.infer<typeof BookSchema>): Promise<string> {
+  const fallbackUrl = 'https://placehold.co/300x450.png';
+
+  if (book.isbn) {
+    const response = await fetch(`https://covers.openlibrary.org/b/isbn/${book.isbn}-L.jpg?default=false`);
+    if (response.ok && response.url) {
+      // The API redirects to a placeholder if no image is found, check for that
+      if (!response.url.includes('olid-all-0.png')) {
+        return response.url;
+      }
+    }
+  }
+
+  // Fallback to searching by title and author if ISBN fails or is missing
+  try {
+    const query = encodeURIComponent(`${book.title} ${book.author}`);
+    const response = await fetch(`https://openlibrary.org/search.json?q=${query}`);
+    const data = await response.json();
+    const coverId = data.docs?.[0]?.cover_i;
+    if (coverId) {
+      return `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
+    }
+  } catch (error) {
+    console.error('Error fetching cover from OpenLibrary search:', error);
+  }
+  
+  return fallbackUrl;
+}
+
+
 export async function searchBooks(
   input: SearchBooksInput
 ): Promise<SearchBooksOutput> {
@@ -42,8 +72,8 @@ export async function searchBooks(
   const booksWithFullData = await Promise.all(
     booksFromFlow.books.map(async (book) => {
       const titleQuery = encodeURIComponent(book.title);
-      // Hardcode a reliable image URL to ensure it displays
-      const coverUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/The_Great_Gatsby_Cover_1925_Retouched.jpg/1024px-The_Great_Gatsby_Cover_1925_Retouched.jpg';
+      const coverUrl = await getCoverUrl(book);
+
       return {
         ...book,
         id: uuidv4(),
@@ -66,9 +96,9 @@ const prompt = ai.definePrompt({
   name: 'searchBooksPrompt',
   input: {schema: SearchBooksInputSchema},
   output: {schema: SearchBooksOutputSchema},
-  prompt: `You are a book search engine. Find up to 6 books matching the query "{{query}}". 
+  prompt: `You are a book expert acting as a search engine. Find up to 6 books matching the query "{{query}}". 
 For each book, provide the title, author, a brief description, the available formats (Audiobook, eBook, Print), and the book's ISBN-13 if available.
-If no books are found, return an empty list.`,
+Ensure the information is accurate. If no books are found, return an empty list.`,
 });
 
 const searchBooksFlow = ai.defineFlow(
