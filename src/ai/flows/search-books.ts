@@ -67,7 +67,7 @@ export async function searchBooks(
 ): Promise<SearchBooksOutput> {
   const booksFromFlow = await searchBooksFlow(input);
 
-  if (!booksFromFlow || !booksFromFlow.books) {
+  if (!booksFromFlow || !booksFromFlow.books || booksFromFlow.books.length === 0) {
     return { books: [] };
   }
 
