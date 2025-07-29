@@ -127,11 +127,23 @@ For each book, provide valid search URLs for the following sources:
 - Hoopla
 - PDF
 {{/if}}
-Construct the URLs to be as accurate as possible for searching for the specific book title. 
-For Amazon Used, use a URL like 'https://www.amazon.com/s?k=TITLE&i=stripbooks-used'. 
-For Amazon New, use a URL like 'https://www.amazon.com/s?k=TITLE&i=stripbooks&rh=p_n_condition-type%3A1294422011'. 
-For Libby, use a google search scoped to their site: 'https://www.google.com/search?q=site%3Alibbyapp.com+TITLE'.
-For PDF, use a google search with the filetype operator: 'https://www.google.com/search?q=TITLE+filetype%3Apdf'.
+
+Construct the URLs to be as accurate as possible for searching for the specific book title. Use the following URL structures. Replace TITLE with the book's title.
+- Amazon Used: 'https://www.amazon.com/s?k=TITLE&i=stripbooks-used'
+- Amazon New: 'https://www.amazon.com/s?k=TITLE&i=stripbooks&rh=p_n_condition-type%3A1294422011'
+- Libby: 'https://www.google.com/search?q=site%3Alibbyapp.com+TITLE'
+- Hoopla: 'https://www.hoopladigital.com/search?q=TITLE'
+- PDF: 'https://www.google.com/search?q=TITLE+filetype%3Apdf'
+- Audible: 'https://www.audible.com/search?keywords=TITLE'
+- Kobo Audiobooks: 'https://www.kobo.com/us/en/search?query=TITLE&fc-media=Audiobook'
+- All You Can Books: 'https://www.allyoucanbooks.com/catalogsearch/result/?q=TITLE'
+- LibriVox: 'https://librivox.org/search?q=TITLE'
+- OverDrive: 'https://www.overdrive.com/search?q=TITLE'
+- YouTube: 'https://www.youtube.com/results?search_query=TITLE+audiobook'
+- Digitalbook.io: 'https://www.digitalbook.io/search?q=TITLE'
+- Google Audiobooks: 'https://play.google.com/store/search?q=TITLE&c=books&target=audiobooks'
+- Downpour: 'https://www.downpour.com/catalogsearch/result/?q=TITLE'
+- Libro.fm: 'https://libro.fm/audiobooks?q=TITLE'
 
 Ensure the information is accurate. If no books are found, return an empty list.`,
 });
