@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import type { BookFormat, SourceName } from '@/lib/types';
-import { availableGenres, availableSources } from '@/lib/data';
+import { availableGenres, availableSources, availableFormats } from '@/lib/data';
 
 const SETTINGS_STORAGE_KEY = 'budget-book-hunter-settings';
 
@@ -13,6 +13,7 @@ interface SettingsContextType {
   setAllGenres: (selectAll: boolean) => void;
   preferredFormats: BookFormat[];
   toggleFormat: (format: BookFormat) => void;
+  setAllFormats: (selectAll: boolean) => void;
   preferredSources: SourceName[];
   toggleSource: (source: SourceName) => void;
   setAllSources: (selectAll: boolean) => void;
@@ -90,6 +91,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
             : [...prev, format]
     );
   }, []);
+  
+  const setAllFormats = useCallback((selectAll: boolean) => {
+    if (selectAll) {
+        setPreferredFormats(availableFormats);
+    } else {
+        setPreferredFormats([]);
+    }
+  }, []);
 
   const toggleSource = useCallback((source: SourceName) => {
     setPreferredSources(prev =>
@@ -115,6 +124,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setAllGenres,
         preferredFormats,
         toggleFormat,
+        setAllFormats,
         preferredSources,
         toggleSource,
         setAllSources,

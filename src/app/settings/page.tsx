@@ -30,6 +30,7 @@ function SettingsContent() {
     setAllGenres,
     preferredFormats,
     toggleFormat,
+    setAllFormats,
     preferredSources,
     toggleSource,
     setAllSources,
@@ -40,6 +41,9 @@ function SettingsContent() {
   
   const allSourcesSelected = preferredSources.length === availableSources.length;
   const someSourcesSelected = preferredSources.length > 0 && !allSourcesSelected;
+
+  const allFormatsSelected = preferredFormats.length === availableFormats.length;
+  const someFormatsSelected = preferredFormats.length > 0 && !allFormatsSelected;
 
   const allFormatHeaders: {format: BookFormat, icon: string}[] = [
     { format: 'Audiobook', icon: '🎧' },
@@ -110,6 +114,21 @@ function SettingsContent() {
           </div>
           <div className="space-y-4">
             <Label className="text-base font-bold">Preferred Formats</Label>
+             <div className="flex items-center space-x-2">
+                <Checkbox
+                    id="select-all-formats"
+                    checked={allFormatsSelected}
+                    onCheckedChange={(checked) => setAllFormats(!!checked)}
+                    indeterminate={someFormatsSelected}
+                />
+                <label
+                    htmlFor="select-all-formats"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                    Select All
+                </label>
+            </div>
+            <Separator />
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {(availableFormats).map((format) => (
                 <div key={format} className="flex items-center space-x-2">
