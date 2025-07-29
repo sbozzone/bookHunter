@@ -21,24 +21,20 @@ const formatIcons: Record<Book['formats'][number], React.ReactNode> = {
 
 const SourceInfo = ({ source }: { source: Source }) => {
   const isAmazon = source.name.startsWith('Amazon');
-
-  if (isAmazon) {
-    return (
-      <Button asChild variant="outline" size="sm" className="w-full justify-between">
-        <a href={source.url} target="_blank" rel="noopener noreferrer">
-          {source.name}
-          <ExternalLink className="h-4 w-4" />
-        </a>
-      </Button>
-    )
-  }
-
   const available = source.availability === 'Available';
+
   return (
-    <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-xs flex items-center justify-between p-2 rounded-md hover:bg-muted transition-colors">
-        <span className="font-medium">{source.name}</span>
-        <Badge variant={available ? 'secondary' : 'destructive'}>{source.availability}</Badge>
-    </a>
+    <Button asChild variant="outline" size="sm" className="w-full justify-between">
+      <a href={source.url} target="_blank" rel="noopener noreferrer">
+        <span className="flex items-center gap-2">
+            {source.name}
+            {!isAmazon && (
+                 <Badge variant={available ? 'secondary' : 'destructive'} className="h-5">{source.availability}</Badge>
+            )}
+        </span>
+        <ExternalLink className="h-4 w-4" />
+      </a>
+    </Button>
   );
 };
 
