@@ -1,7 +1,6 @@
 export type Source = {
   name: 'Libby' | 'Hoopla' | 'PDF' | 'Amazon Used' | 'Amazon New';
   availability: 'Available' | 'Unavailable' | 'Check';
-  price?: string;
   url: string;
 };
 

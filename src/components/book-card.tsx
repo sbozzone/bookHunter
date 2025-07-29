@@ -9,8 +9,9 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Book, Source } from '@/lib/types';
-import { Headphones, BookOpen, Book as BookIcon } from 'lucide-react';
+import { Headphones, BookOpen, Book as BookIcon, ExternalLink } from 'lucide-react';
 import { AddToWatchlistButton } from './add-to-watchlist-button';
+import { Button } from './ui/button';
 
 const formatIcons: Record<Book['formats'][number], React.ReactNode> = {
   Audiobook: <Headphones className="w-4 h-4" />,
@@ -19,15 +20,24 @@ const formatIcons: Record<Book['formats'][number], React.ReactNode> = {
 };
 
 const SourceInfo = ({ source }: { source: Source }) => {
+  const isAmazon = source.name.startsWith('Amazon');
+
+  if (isAmazon) {
+    return (
+      <Button asChild variant="outline" size="sm" className="w-full justify-between">
+        <a href={source.url} target="_blank" rel="noopener noreferrer">
+          {source.name}
+          <ExternalLink className="h-4 w-4" />
+        </a>
+      </Button>
+    )
+  }
+
   const available = source.availability === 'Available';
   return (
     <a href={source.url} target="_blank" rel="noopener noreferrer" className="text-xs flex items-center justify-between p-2 rounded-md hover:bg-muted transition-colors">
         <span className="font-medium">{source.name}</span>
-        {source.price ? (
-          <Badge variant="outline" className="text-sm">{source.price}</Badge>
-        ) : (
-          <Badge variant={available ? 'secondary' : 'destructive'}>{source.availability}</Badge>
-        )}
+        <Badge variant={available ? 'secondary' : 'destructive'}>{source.availability}</Badge>
     </a>
   );
 };
@@ -61,7 +71,7 @@ export default function BookCard({ book, priority = false }: { book: Book, prior
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-0 flex-grow">
-        <div className="space-y-1">
+        <div className="space-y-2">
             {book.sources && book.sources.map(source => <SourceInfo key={source.name} source={source} />)}
         </div>
         {book.isbn && (
