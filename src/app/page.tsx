@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense, useTransition } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import AppLayout from '@/components/layout/app-layout';
 import Header from '@/components/layout/header';
@@ -8,6 +8,19 @@ import BookResults from '@/components/book-results';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Book } from '@/lib/types';
 import { getBooks } from '@/app/actions';
+import { BookMarked } from 'lucide-react';
+
+function SplashScreen() {
+  return (
+    <div className="h-screen w-screen flex flex-col items-center justify-center bg-background fixed inset-0 z-50">
+      <div className="flex items-center gap-4">
+        <BookMarked className="size-12 text-primary animate-pulse" />
+        <h1 className="text-4xl font-bold font-headline">The Budget Book Hunter</h1>
+      </div>
+       <p className="mt-4 text-muted-foreground">Loading your reading experience...</p>
+    </div>
+  );
+}
 
 function BookSearchSkeleton() {
   return (
@@ -44,23 +57,32 @@ function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const [isLoading, setIsLoading] = useState(true);
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
-  const [isPending, startTransition] = useTransition();
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     const query = searchParams.get('q') || '';
     setSubmittedQuery(query);
+    if (!query) {
+      // Only show splash screen on initial load without a query
+      const timer = setTimeout(() => setIsLoading(false), 1500);
+      return () => clearTimeout(timer);
+    } else {
+      setIsLoading(false);
+    }
   }, [searchParams]);
 
   useEffect(() => {
     const queryToSearch = submittedQuery.trim() === '' ? 'Featured Books' : submittedQuery;
     
-    startTransition(async () => {
-      const result = await getBooks(queryToSearch);
+    setIsSearching(true);
+    getBooks(queryToSearch).then(result => {
       if (result.books) {
         setDisplayedBooks(result.books);
       }
+      setIsSearching(false);
       // TODO: Handle error case
     });
   }, [submittedQuery]);
@@ -75,6 +97,10 @@ function SearchPage() {
     router.push(`${pathname}?${params.toString()}`);
   };
 
+  if (isLoading) {
+    return <SplashScreen />;
+  }
+
   return (
     <AppLayout>
       <Header onSearch={handleSearch} initialQuery={submittedQuery} />
@@ -84,7 +110,7 @@ function SearchPage() {
             ? `Search Results for "${submittedQuery}"`
             : 'Featured Books'}
         </h2>
-        {isPending ? (
+        {isSearching ? (
           <BookSearchSkeleton />
         ) : displayedBooks.length > 0 ? (
           <BookResults books={displayedBooks} />
