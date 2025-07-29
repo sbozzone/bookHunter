@@ -84,8 +84,8 @@ export async function searchBooks(
           { name: 'Libby', availability: 'Check', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${titleQuery}` },
           { name: 'Hoopla', availability: 'Check', url: `https://www.hoopladigital.com/search?q=${titleQuery}` },
           { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${titleQuery}+filetype%3Apdf` },
-          { name: 'Amazon Used', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}&condition=used` },
-          { name: 'Amazon New', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}` },
+          { name: 'Amazon Used', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}&i=stripbooks&rh=n%3A283155%2Cp_n_condition-type%3A1294423011` },
+          { name: 'Amazon New', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}&i=stripbooks&rh=n%3A283155%2Cp_n_condition-type%3A1294422011` },
         ],
       };
     })
