@@ -24,7 +24,7 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 const defaultSettings = {
     preferredGenres: [],
     preferredFormats: [],
-    preferredSources: ['Amazon New', 'Amazon Used', 'Libby', 'Hoopla', 'PDF'],
+    preferredSources: availableSources,
 }
 
 export function SettingsProvider({ children }: { children: ReactNode }) {

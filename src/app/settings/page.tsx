@@ -10,8 +10,18 @@ import { ThemeSelector } from '@/components/theme-selector';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { availableGenres, availableFormats, availableSources } from '@/lib/data';
+import { availableGenres, availableFormats, sourceData, availableSources } from '@/lib/data';
 import { Separator } from '@/components/ui/separator';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import type { BookFormat } from '@/lib/types';
+
 
 function SettingsContent() {
   const {
@@ -30,6 +40,12 @@ function SettingsContent() {
   
   const allSourcesSelected = preferredSources.length === availableSources.length;
   const someSourcesSelected = preferredSources.length > 0 && !allSourcesSelected;
+
+  const formatHeaders: {format: BookFormat, icon: string}[] = [
+    { format: 'Audiobook', icon: '🎧' },
+    { format: 'eBook', icon: '📱' },
+    { format: 'Print', icon: '📖' },
+  ];
 
   return (
     <div className="space-y-8">
@@ -58,8 +74,8 @@ function SettingsContent() {
                 <Checkbox
                     id="select-all-genres"
                     checked={allGenresSelected}
-                    indeterminate={someGenresSelected}
                     onCheckedChange={(checked) => setAllGenres(!!checked)}
+                    indeterminate={someGenresSelected}
                 />
                 <label
                     htmlFor="select-all-genres"
@@ -116,12 +132,12 @@ function SettingsContent() {
             <CardDescription>Select which sources you want to search for books on.</CardDescription>
         </CardHeader>
         <CardContent>
-             <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
                 <Checkbox
                     id="select-all-sources"
                     checked={allSourcesSelected}
-                    indeterminate={someSourcesSelected}
                     onCheckedChange={(checked) => setAllSources(!!checked)}
+                    indeterminate={someSourcesSelected}
                 />
                 <label
                     htmlFor="select-all-sources"
@@ -131,22 +147,43 @@ function SettingsContent() {
                 </label>
             </div>
             <Separator className="my-4" />
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {availableSources.map((source) => (
-                    <div key={source} className="flex items-center space-x-2">
-                        <Checkbox
-                            id={`source-${source}`}
-                            checked={preferredSources.includes(source)}
-                            onCheckedChange={() => toggleSource(source)}
-                        />
-                        <label
-                            htmlFor={`source-${source}`}
-                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                            {source}
-                        </label>
-                    </div>
-                ))}
+            <div className="border rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[200px]">Source</TableHead>
+                    {formatHeaders.map(({format, icon}) => (
+                        <TableHead key={format} className="text-center">{`${format} ${icon}`}</TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sourceData.map((source) => (
+                    <TableRow key={source.name}>
+                      <TableCell>
+                         <div className="flex items-center space-x-3">
+                            <Checkbox
+                                id={`source-${source.name}`}
+                                checked={preferredSources.includes(source.name)}
+                                onCheckedChange={() => toggleSource(source.name)}
+                            />
+                            <label
+                                htmlFor={`source-${source.name}`}
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                                {source.name}
+                            </label>
+                        </div>
+                      </TableCell>
+                      {formatHeaders.map(({format}) => (
+                         <TableCell key={`${source.name}-${format}`} className="text-center">
+                            {source.formats.includes(format) ? '✅' : '❌'}
+                         </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
         </CardContent>
       </Card>

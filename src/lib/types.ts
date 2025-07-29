@@ -32,3 +32,9 @@ export type Book = {
   formats: BookFormat[];
   isbn?: string;
 };
+
+export type SourceData = {
+  name: SourceName;
+  formats: BookFormat[];
+  note?: string;
+};
