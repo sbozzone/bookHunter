@@ -1,3 +1,4 @@
+
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
@@ -9,10 +10,12 @@ const SETTINGS_STORAGE_KEY = 'budget-book-hunter-settings';
 interface SettingsContextType {
   preferredGenres: string[];
   toggleGenre: (genre: string) => void;
+  setAllGenres: (selectAll: boolean) => void;
   preferredFormats: BookFormat[];
   toggleFormat: (format: BookFormat) => void;
   preferredSources: SourceName[];
   toggleSource: (source: SourceName) => void;
+  setAllSources: (selectAll: boolean) => void;
   isInitialized: boolean;
 }
 
@@ -72,6 +75,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const setAllGenres = useCallback((selectAll: boolean) => {
+    if (selectAll) {
+        setPreferredGenres(availableGenres);
+    } else {
+        setPreferredGenres([]);
+    }
+  }, []);
+
   const toggleFormat = useCallback((format: BookFormat) => {
     setPreferredFormats(prev =>
         prev.includes(format)
@@ -88,15 +99,25 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     );
     }, []);
 
+  const setAllSources = useCallback((selectAll: boolean) => {
+    if (selectAll) {
+        setPreferredSources(availableSources);
+    } else {
+        setPreferredSources([]);
+    }
+  }, []);
+
   return (
     <SettingsContext.Provider
       value={{ 
         preferredGenres, 
-        toggleGenre, 
+        toggleGenre,
+        setAllGenres,
         preferredFormats,
         toggleFormat,
         preferredSources,
         toggleSource,
+        setAllSources,
         isInitialized 
     }}
     >

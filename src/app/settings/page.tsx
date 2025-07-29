@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense } from 'react';
@@ -10,16 +11,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { availableGenres, availableFormats, availableSources } from '@/lib/data';
+import { Separator } from '@/components/ui/separator';
 
 function SettingsContent() {
   const {
     preferredGenres,
     toggleGenre,
+    setAllGenres,
     preferredFormats,
     toggleFormat,
     preferredSources,
     toggleSource,
+    setAllSources,
   } = useSettings();
+
+  const allGenresSelected = preferredGenres.length === availableGenres.length;
+  const someGenresSelected = preferredGenres.length > 0 && !allGenresSelected;
+  
+  const allSourcesSelected = preferredSources.length === availableSources.length;
+  const someSourcesSelected = preferredSources.length > 0 && !allSourcesSelected;
 
   return (
     <div className="space-y-8">
@@ -44,6 +54,21 @@ function SettingsContent() {
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <Label className="text-base font-bold">Favorite Genres</Label>
+            <div className="flex items-center space-x-2">
+                <Checkbox
+                    id="select-all-genres"
+                    checked={allGenresSelected}
+                    indeterminate={someGenresSelected}
+                    onCheckedChange={(checked) => setAllGenres(!!checked)}
+                />
+                <label
+                    htmlFor="select-all-genres"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                    Select All
+                </label>
+            </div>
+            <Separator />
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {availableGenres.map((genre) => (
                 <div key={genre} className="flex items-center space-x-2">
@@ -91,6 +116,21 @@ function SettingsContent() {
             <CardDescription>Select which sources you want to search for books on.</CardDescription>
         </CardHeader>
         <CardContent>
+             <div className="flex items-center space-x-2">
+                <Checkbox
+                    id="select-all-sources"
+                    checked={allSourcesSelected}
+                    indeterminate={someSourcesSelected}
+                    onCheckedChange={(checked) => setAllSources(!!checked)}
+                />
+                <label
+                    htmlFor="select-all-sources"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                    Select All
+                </label>
+            </div>
+            <Separator className="my-4" />
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {availableSources.map((source) => (
                     <div key={source} className="flex items-center space-x-2">
