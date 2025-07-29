@@ -20,17 +20,11 @@ const formatIcons: Record<Book['formats'][number], React.ReactNode> = {
 };
 
 const SourceInfo = ({ source }: { source: Source }) => {
-  const isAmazon = source.name.startsWith('Amazon');
-  const available = source.availability === 'Available';
-
   return (
     <Button asChild variant="outline" size="sm" className="w-full justify-between">
       <a href={source.url} target="_blank" rel="noopener noreferrer">
         <span className="flex items-center gap-2">
             {source.name}
-            {!isAmazon && (
-                 <Badge variant={available ? 'secondary' : 'destructive'} className="h-5">{source.availability}</Badge>
-            )}
         </span>
         <ExternalLink className="h-4 w-4" />
       </a>
