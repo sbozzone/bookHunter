@@ -10,6 +10,7 @@ import type { Book } from '@/lib/types';
 import { getBooks } from '@/app/actions';
 import { BookMarked } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { useSettings } from '@/components/settings-provider';
 
 function SplashScreen() {
   const [progress, setProgress] = useState(0);
@@ -76,6 +77,7 @@ function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const { preferredGenres, preferredFormats, isInitialized: settingsAreInitialized } = useSettings();
   const [isLoading, setIsLoading] = useState(true);
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
@@ -94,29 +96,30 @@ function SearchPage() {
   }, [searchParams]);
 
   useEffect(() => {
+    if (!settingsAreInitialized) return;
+
+    const performSearch = (query: string) => {
+      setIsSearching(true);
+      const genresToSearch = preferredGenres.length > 0 ? preferredGenres : undefined;
+      const formatsToSearch = preferredFormats.length > 0 ? preferredFormats : undefined;
+
+      getBooks(query, genresToSearch, formatsToSearch).then(result => {
+        if (result.books) {
+          setDisplayedBooks(result.books);
+        }
+        setIsSearching(false);
+      });
+    }
+
     if (submittedQuery.trim() === '' && !isLoading) {
        // On initial load without a search query, show featured books after splash
-      const queryToSearch = 'Featured Books';
-      setIsSearching(true);
-      getBooks(queryToSearch).then(result => {
-        if (result.books) {
-          setDisplayedBooks(result.books);
-        }
-        setIsSearching(false);
-      });
+      performSearch('Featured Books');
     } else if (submittedQuery.trim() !== '') {
-      setIsSearching(true);
-      getBooks(submittedQuery).then(result => {
-        if (result.books) {
-          setDisplayedBooks(result.books);
-        }
-        setIsSearching(false);
-        // TODO: Handle error case
-      });
+      performSearch(submittedQuery);
     } else {
       setDisplayedBooks([]);
     }
-  }, [submittedQuery, isLoading]);
+  }, [submittedQuery, isLoading, preferredGenres, preferredFormats, settingsAreInitialized]);
 
   const handleSearch = (query: string) => {
     const params = new URLSearchParams(searchParams.toString());

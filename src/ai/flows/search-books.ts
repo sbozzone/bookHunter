@@ -11,9 +11,12 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { v4 as uuidv4 } from 'uuid';
+import type { BookFormat } from '@/lib/types';
 
 const SearchBooksInputSchema = z.object({
   query: z.string().describe('The book title or author to search for.'),
+  genres: z.array(z.string()).optional().describe('A list of preferred genres to filter by.'),
+  formats: z.array(z.nativeEnum(['Audiobook', 'eBook', 'Print'])).optional().describe('A list of preferred formats to filter by.'),
 });
 export type SearchBooksInput = z.infer<typeof SearchBooksInputSchema>;
 
@@ -22,7 +25,7 @@ const BookSchema = z.object({
   author: z.string().describe('The author of the book.'),
   description: z.string().describe('A short description of the book.'),
   isbn: z.string().optional().describe('The ISBN-13 of the book, if available.'),
-  formats: z.array(z.enum(['Audiobook', 'eBook', 'Print'])).describe('The available formats for the book.'),
+  formats: z.array(z.nativeEnum(['Audiobook', 'eBook', 'Print'])).describe('The available formats for the book.'),
 });
 
 const SearchBooksOutputSchema = z.object({
@@ -98,9 +101,17 @@ const prompt = ai.definePrompt({
   name: 'searchBooksPrompt',
   input: {schema: SearchBooksInputSchema},
   output: {schema: SearchBooksOutputSchema},
-  prompt: `You are a book expert acting as a search engine. Find up to 6 books matching the query "{{query}}". 
+  prompt: `You are a book expert acting as a search engine. Find up to 6 books matching the query "{{query}}".
+{{#if genres}}
+Prioritize books from the following genres: {{#each genres}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}.
+{{/if}}
 For each book, provide the title, author, a brief description, and the book's ISBN-13 if available.
-Based on your knowledge, determine which of the following formats are actually available for the book: 'Audiobook', 'eBook', 'Print'. Only include the formats that are realistically available for purchase or loan.
+Based on your knowledge, determine which of the following formats are actually available for the book: 'Audiobook', 'eBook', 'Print'.
+{{#if formats}}
+Only return books that are available in at least one of the preferred formats: {{#each formats}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}. Only include the available formats that match the user's preference.
+{{else}}
+Only include the formats that are realistically available for purchase or loan.
+{{/if}}
 Ensure the information is accurate. If no books are found, return an empty list.`,
 });
 
