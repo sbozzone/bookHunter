@@ -41,11 +41,17 @@ const SearchSchema = z.object({
 });
 
 export async function getBooks(query: string, genres?: string[], formats?: BookFormat[], sources?: SourceName[]) {
-    const validatedFields = SearchSchema.safeParse({ query, genres, formats, sources });
+    const validatedFields = SearchSchema.safeParse({ 
+        query, 
+        genres: genres && genres.length > 0 ? genres : undefined, 
+        formats: formats && formats.length > 0 ? formats : undefined, 
+        sources: sources && sources.length > 0 ? sources : undefined 
+    });
 
     if (!validatedFields.success) {
+        console.error('Validation Errors:', validatedFields.error.flatten().fieldErrors);
         return {
-            error: 'Invalid query.',
+            error: 'Invalid search parameters.',
             books: [],
         };
     }
