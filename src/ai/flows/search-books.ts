@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -24,7 +25,7 @@ export type SearchBooksInput = z.infer<typeof SearchBooksInputSchema>;
 
 const SourceSchema = z.object({
     name: z.string().describe('The name of the source, e.g., "Amazon", "Libby".'),
-    url: z.string().url().describe('The direct URL to the book on the source\'s website.'),
+    url: z.string().describe('The direct URL to the book on the source\'s website.'),
 });
 
 const BookSchema = z.object({
