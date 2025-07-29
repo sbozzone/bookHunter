@@ -115,15 +115,19 @@ function SearchPage() {
       });
     }
 
-    if (submittedQuery.trim() === '' && !isLoading) {
-       // On initial load without a search query, show featured books after splash
+    const query = searchParams.get('q')
+    if (query !== null) {
+      if (query.trim() !== '') {
+        performSearch(query);
+      } else {
+        setDisplayedBooks([]);
+      }
+    } else if (!isLoading) {
+      // On initial load without a search query, show featured books after splash
       performSearch('Featured Books');
-    } else if (submittedQuery.trim() !== '') {
-      performSearch(submittedQuery);
-    } else {
-      setDisplayedBooks([]);
     }
-  }, [submittedQuery, isLoading, preferredGenres, preferredFormats, preferredSources, settingsAreInitialized]);
+
+  }, [searchParams, isLoading, preferredGenres, preferredFormats, preferredSources, settingsAreInitialized]);
 
   const handleSearch = (query: string) => {
     const params = new URLSearchParams(searchParams.toString());
