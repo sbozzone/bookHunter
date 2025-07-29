@@ -127,7 +127,7 @@ For each book, provide valid search URLs for the following sources:
 - Hoopla
 - PDF
 {{/if}}
-Construct the URLs to be as accurate as possible for searching for the specific book title. For example, for Amazon Used, use a URL like 'https://www.amazon.com/s?k=TITLE&i=stripbooks-used'. For Libby, use a google search scoped to their site: 'https://www.google.com/search?q=site%3Alibbyapp.com+TITLE'.
+Construct the URLs to be as accurate as possible for searching for the specific book title. For Amazon Used, use a URL like 'https://www.amazon.com/s?k=TITLE&i=stripbooks-used'. For Amazon New, use a URL like 'https://www.amazon.com/s?k=TITLE&i=stripbooks&rh=p_n_condition-type%3A1294422011'. For Libby, use a google search scoped to their site: 'https://www.google.com/search?q=site%3Alibbyapp.com+TITLE'.
 
 Ensure the information is accurate. If no books are found, return an empty list.`,
 });
