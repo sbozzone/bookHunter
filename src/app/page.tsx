@@ -9,8 +9,25 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { Book } from '@/lib/types';
 import { getBooks } from '@/app/actions';
 import { BookMarked } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 function SplashScreen() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          return 100;
+        }
+        return prev + 1;
+      });
+    }, 15); // Update progress every 15ms to reach 100 in 1.5s
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="h-screen w-screen flex flex-col items-center justify-center bg-background fixed inset-0 z-50">
       <div className="flex items-center gap-4">
@@ -19,6 +36,7 @@ function SplashScreen() {
       </div>
       <p className="mt-4 text-xl text-foreground">Find It. Read It, Save Big!</p>
       <p className="mt-2 text-muted-foreground">Scanning Libby, Hoopla, Amazon and more</p>
+      <Progress value={progress} className="w-1/4 mt-8" />
     </div>
   );
 }
