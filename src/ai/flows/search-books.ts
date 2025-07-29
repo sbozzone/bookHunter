@@ -108,7 +108,8 @@ Prioritize books from the following genres: {{#each genres}}{{{this}}}{{#unless 
 For each book, provide the title, author, a brief description, and the book's ISBN-13 if available.
 Based on your knowledge, determine which of the following formats are actually available for the book: 'Audiobook', 'eBook', 'Print'.
 {{#if formats}}
-Only return books that are available in at least one of the preferred formats: {{#each formats}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}. Only include the available formats that match the user's preference.
+Only return books that are available in at least one of the preferred formats: {{#each formats}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}. 
+For the books you return, provide ALL of their available formats, not just the ones the user prefers.
 {{else}}
 Only include the formats that are realistically available for purchase or loan.
 {{/if}}
