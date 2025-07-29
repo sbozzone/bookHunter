@@ -17,7 +17,8 @@ function SplashScreen() {
         <BookMarked className="size-12 text-primary animate-pulse" />
         <h1 className="text-4xl font-bold font-headline">The Budget Book Hunter</h1>
       </div>
-       <p className="mt-4 text-muted-foreground">Loading your reading experience...</p>
+      <p className="mt-4 text-xl text-foreground">Find It. Read It, Save Big!</p>
+      <p className="mt-2 text-muted-foreground">Scanning Libby, Hoopla, Amazon and more</p>
     </div>
   );
 }
@@ -75,17 +76,29 @@ function SearchPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    const queryToSearch = submittedQuery.trim() === '' ? 'Featured Books' : submittedQuery;
-    
-    setIsSearching(true);
-    getBooks(queryToSearch).then(result => {
-      if (result.books) {
-        setDisplayedBooks(result.books);
-      }
-      setIsSearching(false);
-      // TODO: Handle error case
-    });
-  }, [submittedQuery]);
+    if (submittedQuery.trim() === '' && !isLoading) {
+       // On initial load without a search query, show featured books after splash
+      const queryToSearch = 'Featured Books';
+      setIsSearching(true);
+      getBooks(queryToSearch).then(result => {
+        if (result.books) {
+          setDisplayedBooks(result.books);
+        }
+        setIsSearching(false);
+      });
+    } else if (submittedQuery.trim() !== '') {
+      setIsSearching(true);
+      getBooks(submittedQuery).then(result => {
+        if (result.books) {
+          setDisplayedBooks(result.books);
+        }
+        setIsSearching(false);
+        // TODO: Handle error case
+      });
+    } else {
+      setDisplayedBooks([]);
+    }
+  }, [submittedQuery, isLoading]);
 
   const handleSearch = (query: string) => {
     const params = new URLSearchParams(searchParams.toString());
