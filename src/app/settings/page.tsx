@@ -55,6 +55,14 @@ function SettingsContent() {
     preferredFormats.length === 0 || preferredFormats.includes(header.format)
   );
 
+  const filteredSourceData = sourceData.filter(source => {
+    if (preferredFormats.length === 0) {
+      return true; // Show all sources if no formats are selected
+    }
+    // Show source if it supports at least one of the selected formats
+    return preferredFormats.some(format => source.formats.includes(format));
+  });
+
 
   return (
     <div className="space-y-8">
@@ -182,7 +190,7 @@ function SettingsContent() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sourceData.map((source) => (
+                  {filteredSourceData.map((source) => (
                     <TableRow key={source.name}>
                       <TableCell>
                          <div className="flex items-center space-x-3">
