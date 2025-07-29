@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'Bibliosleuth',
+  title: 'The Budget Book Hunter',
   description: 'Find, track, and get recommendations for your next favorite book.',
 };
 
@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className="font-body antialiased" suppressHydrationWarning>
         <ThemeProvider
           defaultColorTheme="default"
-          storageKey="bibliosleuth-color-theme"
+          storageKey="budget-book-hunter-color-theme"
         >
           {children}
           <Toaster />

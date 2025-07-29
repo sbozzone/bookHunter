@@ -58,14 +58,14 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <SidebarHeader>
             <Link href="/" className="flex items-center gap-2">
               <BookMarked className="size-8 text-primary" />
-              <h1 className="text-2xl font-bold font-headline">Bibliosleuth</h1>
+              <h1 className="text-xl font-bold font-headline">The Budget Book Hunter</h1>
             </Link>
           </SidebarHeader>
           <SidebarContent className="p-0">
              <SidebarContentWithState />
           </SidebarContent>
           <SidebarFooter>
-            <p className="text-xs text-muted-foreground text-center">© 2024 Bibliosleuth</p>
+            <p className="text-xs text-muted-foreground text-center">© 2024 The Budget Book Hunter</p>
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>{children}</SidebarInset>

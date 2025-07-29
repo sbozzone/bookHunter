@@ -19,7 +19,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const item = window.localStorage.getItem('bibliosleuth-watchlist');
+      const item = window.localStorage.getItem('budget-book-hunter-watchlist');
       if (item) {
         setWatchlist(JSON.parse(item));
       }
@@ -33,7 +33,7 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isInitialized) {
       try {
-        window.localStorage.setItem('bibliosleuth-watchlist', JSON.stringify(watchlist));
+        window.localStorage.setItem('budget-book-hunter-watchlist', JSON.stringify(watchlist));
       } catch (error) {
          console.warn('Error setting localStorage.', error);
       }

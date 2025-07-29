@@ -25,7 +25,7 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 export function ThemeProvider({
   children,
   defaultColorTheme = "default",
-  storageKey = "bibliosleuth-color-theme",
+  storageKey = "budget-book-hunter-color-theme",
   ...props
 }: ThemeProviderProps) {
   const [colorTheme, setColorTheme] = useState<ColorTheme>(() => {
