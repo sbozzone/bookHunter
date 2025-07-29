@@ -43,7 +43,7 @@ function SplashScreen() {
   );
 }
 
-function BookSearchSkeleton() {
+function BookSearchSkeleton({ numSources }: { numSources: number }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
       {[...Array(6)].map((_, i) => (
@@ -60,9 +60,9 @@ function BookSearchSkeleton() {
              </div>
           </div>
           <div className="space-y-2 px-4">
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
-            <Skeleton className="h-8 w-full" />
+            {[...Array(numSources)].map((_, j) => (
+                <Skeleton key={j} className="h-8 w-full" />
+            ))}
           </div>
            <div className="p-4 pt-0 mt-auto">
              <Skeleton className="h-10 w-full" />
@@ -83,6 +83,8 @@ function SearchPage() {
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  const sourcesCount = preferredSources.length > 0 ? preferredSources.length : 5;
 
   useEffect(() => {
     const query = searchParams.get('q') || '';
@@ -147,7 +149,7 @@ function SearchPage() {
             : 'Featured Books'}
         </h2>
         {isSearching ? (
-          <BookSearchSkeleton />
+          <BookSearchSkeleton numSources={sourcesCount} />
         ) : displayedBooks.length > 0 ? (
           <BookResults books={displayedBooks} />
         ) : (
