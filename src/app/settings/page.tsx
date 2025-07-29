@@ -41,7 +41,7 @@ function SettingsContent() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
-            <Label className="text-base">Favorite Genres</Label>
+            <Label className="text-base font-bold">Favorite Genres</Label>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {availableGenres.map((genre) => (
                 <div key={genre} className="flex items-center space-x-2">
@@ -61,7 +61,7 @@ function SettingsContent() {
             </div>
           </div>
           <div className="space-y-4">
-            <Label className="text-base">Preferred Formats</Label>
+            <Label className="text-base font-bold">Preferred Formats</Label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {(availableFormats).map((format) => (
                 <div key={format} className="flex items-center space-x-2">
