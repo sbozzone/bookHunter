@@ -28,7 +28,7 @@ function SettingsContent() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label>Color Theme</Label>
+            <Label className="text-base font-bold">Color Theme</Label>
             <ThemeSelector />
           </div>
         </CardContent>
