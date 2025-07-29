@@ -23,7 +23,7 @@ function SplashScreen() {
         }
         return prev + 1;
       });
-    }, 15); // Update progress every 15ms to reach 100 in 1.5s
+    }, 20); // Update progress every 20ms to reach 100 in 2s
 
     return () => clearInterval(interval);
   }, []);
@@ -86,7 +86,7 @@ function SearchPage() {
     setSubmittedQuery(query);
     if (!query) {
       // Only show splash screen on initial load without a query
-      const timer = setTimeout(() => setIsLoading(false), 1500);
+      const timer = setTimeout(() => setIsLoading(false), 2000);
       return () => clearTimeout(timer);
     } else {
       setIsLoading(false);
