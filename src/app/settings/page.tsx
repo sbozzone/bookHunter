@@ -41,11 +41,16 @@ function SettingsContent() {
   const allSourcesSelected = preferredSources.length === availableSources.length;
   const someSourcesSelected = preferredSources.length > 0 && !allSourcesSelected;
 
-  const formatHeaders: {format: BookFormat, icon: string}[] = [
+  const allFormatHeaders: {format: BookFormat, icon: string}[] = [
     { format: 'Audiobook', icon: '🎧' },
     { format: 'eBook', icon: '📱' },
     { format: 'Print', icon: '📖' },
   ];
+
+  const formatHeaders = allFormatHeaders.filter(header => 
+    preferredFormats.length === 0 || preferredFormats.includes(header.format)
+  );
+
 
   return (
     <div className="space-y-8">
@@ -129,7 +134,7 @@ function SettingsContent() {
       <Card>
         <CardHeader>
             <CardTitle>Search Sources</CardTitle>
-            <CardDescription>Select which sources you want to search for books on.</CardDescription>
+            <CardDescription>Select which sources you want to search for books on. The table below will update based on your Preferred Formats.</CardDescription>
         </CardHeader>
         <CardContent>
             <div className="flex items-center space-x-2">
