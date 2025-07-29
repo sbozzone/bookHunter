@@ -1,7 +1,7 @@
 
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import type { BookFormat, SourceName } from '@/lib/types';
 import { availableGenres, availableSources, availableFormats } from '@/lib/data';
 
@@ -116,20 +116,33 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const contextValue = React.useMemo(() => ({
+    preferredGenres, 
+    toggleGenre,
+    setAllGenres,
+    preferredFormats,
+    toggleFormat,
+    setAllFormats,
+    preferredSources,
+    toggleSource,
+    setAllSources,
+    isInitialized
+  }), [
+    preferredGenres, 
+    toggleGenre,
+    setAllGenres,
+    preferredFormats,
+    toggleFormat,
+    setAllFormats,
+    preferredSources,
+    toggleSource,
+    setAllSources,
+    isInitialized
+  ]);
+
   return (
     <SettingsContext.Provider
-      value={{ 
-        preferredGenres, 
-        toggleGenre,
-        setAllGenres,
-        preferredFormats,
-        toggleFormat,
-        setAllFormats,
-        preferredSources,
-        toggleSource,
-        setAllSources,
-        isInitialized 
-    }}
+      value={contextValue}
     >
       {children}
     </SettingsContext.Provider>
