@@ -99,7 +99,8 @@ const prompt = ai.definePrompt({
   input: {schema: SearchBooksInputSchema},
   output: {schema: SearchBooksOutputSchema},
   prompt: `You are a book expert acting as a search engine. Find up to 6 books matching the query "{{query}}". 
-For each book, provide the title, author, a brief description, the available formats (Audiobook, eBook, Print), and the book's ISBN-13 if available.
+For each book, provide the title, author, a brief description, and the book's ISBN-13 if available.
+Based on your knowledge, determine which of the following formats are actually available for the book: 'Audiobook', 'eBook', 'Print'. Only include the formats that are realistically available for purchase or loan.
 Ensure the information is accurate. If no books are found, return an empty list.`,
 });
 
