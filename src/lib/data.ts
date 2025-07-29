@@ -1,4 +1,4 @@
-import type { Book } from '@/lib/types';
+import type { Book, BookFormat } from '@/lib/types';
 
 export const mockBooks: Book[] = [
   {
@@ -12,8 +12,8 @@ export const mockBooks: Book[] = [
       { name: 'Libby', availability: 'Available', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('The Great Gatsby')}` },
       { name: 'Hoopla', availability: 'Unavailable', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('The Great Gatsby')}` },
       { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent('The Great Gatsby')}+filetype%3Apdf` },
-      { name: 'Amazon Used', price: '$4.99', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Great Gatsby')}` },
-      { name: 'Amazon New', price: '$12.99', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Great Gatsby')}` },
+      { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Great Gatsby')}&i=stripbooks-used` },
+      { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Great Gatsby')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
     ],
   },
   {
@@ -27,8 +27,8 @@ export const mockBooks: Book[] = [
       { name: 'Libby', availability: 'Unavailable', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('To Kill a Mockingbird')}` },
       { name: 'Hoopla', availability: 'Available', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('To Kill a Mockingbird')}` },
       { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent('To Kill a Mockingbird')}+filetype%3Apdf` },
-      { name: 'Amazon Used', price: '$6.50', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('To Kill a Mockingbird')}` },
-      { name: 'Amazon New', price: '$14.00', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('To Kill a Mockingbird')}` },
+      { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('To Kill a Mockingbird')}&i=stripbooks-used` },
+      { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('To Kill a Mockingbird')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
     ],
   },
   {
@@ -42,8 +42,8 @@ export const mockBooks: Book[] = [
       { name: 'Libby', availability: 'Available', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('1984')}` },
       { name: 'Hoopla', availability: 'Available', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('1984')}` },
       { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent('1984')}+filetype%3Apdf` },
-      { name: 'Amazon Used', price: '$5.25', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('1984')}` },
-      { name: 'Amazon New', price: '$11.75', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('1984')}` },
+      { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('1984')}&i=stripbooks-used` },
+      { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('1984')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
     ],
   },
    {
@@ -57,8 +57,8 @@ export const mockBooks: Book[] = [
       { name: 'Libby', availability: 'Available', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('Pride and Prejudice')}` },
       { name: 'Hoopla', availability: 'Available', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('Pride and Prejudice')}` },
       { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent('Pride and Prejudice')}+filetype%3Apdf` },
-      { name: 'Amazon Used', price: '$3.99', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('Pride and Prejudice')}` },
-      { name: 'Amazon New', price: '$10.99', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('Pride and Prejudice')}` },
+      { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('Pride and Prejudice')}&i=stripbooks-used` },
+      { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('Pride and Prejudice')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
     ],
   },
    {
@@ -72,8 +72,8 @@ export const mockBooks: Book[] = [
       { name: 'Libby', availability: 'Unavailable', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('The Hobbit')}` },
       { name: 'Hoopla', availability: 'Available', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('The Hobbit')}` },
       { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent('The Hobbit')}+filetype%3Apdf` },
-      { name: 'Amazon Used', price: '$7.00', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Hobbit')}` },
-      { name: 'Amazon New', price: '$15.00', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Hobbit')}` },
+      { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Hobbit')}&i=stripbooks-used` },
+      { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Hobbit')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
     ],
   },
    {
@@ -87,8 +87,25 @@ export const mockBooks: Book[] = [
       { name: 'Libby', availability: 'Available', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('Dune')}` },
       { name: 'Hoopla', availability: 'Unavailable', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('Dune')}` },
       { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent('Dune')}+filetype%3Apdf` },
-      { name: 'Amazon Used', price: '$8.50', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('Dune')}` },
-      { name: 'Amazon New', price: '$17.99', availability: 'Available', url: `https://www.amazon.com/s?k=${encodeURIComponent('Dune')}` },
+      { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('Dune')}&i=stripbooks-used` },
+      { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('Dune')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
     ],
   },
 ];
+
+export const availableGenres = [
+  'Science Fiction',
+  'Fantasy',
+  'Romance',
+  'Mystery',
+  'Thriller',
+  'Horror',
+  'Historical Fiction',
+  'Non-Fiction',
+  'Biography',
+  'Young Adult',
+  'Children',
+  'Literary Fiction',
+];
+
+export const availableFormats: BookFormat[] = ['Audiobook', 'eBook', 'Print'];

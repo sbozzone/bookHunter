@@ -17,7 +17,8 @@ import Watchlist from '@/components/watchlist';
 import { WatchlistProvider, useWatchlist } from '@/components/watchlist-provider';
 import { BookMarked, Rss, Settings } from 'lucide-react';
 import { Separator } from '../ui/separator';
-import { ThemeSelector } from '../theme-selector';
+import { Button } from '../ui/button';
+import { SettingsProvider } from '../settings-provider';
 
 function SidebarContentWithState() {
   const { watchlist, removeFromWatchlist } = useWatchlist();
@@ -35,41 +36,39 @@ function SidebarContentWithState() {
         watchlist={watchlist}
         removeFromWatchlist={removeFromWatchlist}
       />
-      <Separator />
-      <SidebarGroup>
-        <SidebarGroupLabel className="flex items-center gap-2">
-          <Settings className="size-4" />
-          Settings
-        </SidebarGroupLabel>
-        <div className="px-2">
-            <p className="text-xs text-muted-foreground mb-2">Color Theme</p>
-            <ThemeSelector />
-        </div>
-      </SidebarGroup>
     </>
   );
 }
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <WatchlistProvider>
-      <SidebarProvider defaultOpen={true}>
-        <Sidebar>
-          <SidebarHeader>
-            <Link href="/" className="flex items-center gap-2">
-              <BookMarked className="size-8 text-primary" />
-              <h1 className="text-xl font-bold font-headline">The Budget Book Hunter</h1>
-            </Link>
-          </SidebarHeader>
-          <SidebarContent className="p-0">
-             <SidebarContentWithState />
-          </SidebarContent>
-          <SidebarFooter>
-            <p className="text-xs text-muted-foreground text-center">© 2024 The Budget Book Hunter</p>
-          </SidebarFooter>
-        </Sidebar>
-        <SidebarInset>{children}</SidebarInset>
-      </SidebarProvider>
-    </WatchlistProvider>
+    <SettingsProvider>
+      <WatchlistProvider>
+        <SidebarProvider defaultOpen={true}>
+          <Sidebar>
+            <SidebarHeader>
+              <Link href="/" className="flex items-center gap-2">
+                <BookMarked className="size-8 text-primary" />
+                <h1 className="text-xl font-bold font-headline">The Budget Book Hunter</h1>
+              </Link>
+            </SidebarHeader>
+            <SidebarContent className="p-0">
+               <SidebarContentWithState />
+            </SidebarContent>
+            <SidebarFooter>
+               <Separator className="mb-2" />
+               <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link href="/settings" className="flex items-center gap-2">
+                  <Settings className="size-4" />
+                  <span>Settings</span>
+                </Link>
+              </Button>
+              <p className="text-xs text-muted-foreground text-center mt-4">© 2024 The Budget Book Hunter</p>
+            </SidebarFooter>
+          </Sidebar>
+          <SidebarInset>{children}</SidebarInset>
+        </SidebarProvider>
+      </WatchlistProvider>
+    </SettingsProvider>
   );
 }

@@ -1,8 +1,10 @@
 export type Source = {
   name: 'Libby' | 'Hoopla' | 'PDF' | 'Amazon Used' | 'Amazon New';
-  availability: 'Available' | 'Unavailable' | 'Check';
+  availability?: 'Available' | 'Unavailable' | 'Check';
   url: string;
 };
+
+export type BookFormat = 'Audiobook' | 'eBook' | 'Print';
 
 export type Book = {
   id: string;
@@ -11,6 +13,6 @@ export type Book = {
   coverUrl: string;
   description: string;
   sources: Source[];
-  formats: ('Audiobook' | 'eBook' | 'Print')[];
+  formats: BookFormat[];
   isbn?: string;
 };

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
+import { SettingsProvider } from '@/components/settings-provider';
 
 export const metadata: Metadata = {
   title: 'The Budget Book Hunter',
@@ -25,7 +26,9 @@ export default function RootLayout({
           defaultColorTheme="default"
           storageKey="budget-book-hunter-color-theme"
         >
-          {children}
+          <SettingsProvider>
+            {children}
+          </SettingsProvider>
           <Toaster />
         </ThemeProvider>
       </body>
