@@ -131,7 +131,7 @@ For each book, provide valid search URLs for the following sources:
 - PDF
 {{/if}}
 
-Construct the URLs to be as accurate as possible for searching for the specific book title. Use the following URL structures. Replace TITLE with the book's title.
+Construct the URLs to be as accurate as possible for searching for the specific book title. Replace TITLE with the book's title.
 - Amazon Used: 'https://www.amazon.com/s?k=TITLE&i=stripbooks-used'
 - Amazon New: 'https://www.amazon.com/s?k=TITLE&i=stripbooks&rh=p_n_condition-type%3A1294422011'
 - Libby: 'https://www.google.com/search?q=site%3Alibbyapp.com+TITLE'
