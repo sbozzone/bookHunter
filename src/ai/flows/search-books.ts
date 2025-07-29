@@ -15,10 +15,12 @@ import { v4 as uuidv4 } from 'uuid';
 import type { BookFormat, SourceName } from '@/lib/types';
 import { availableSources } from '@/lib/data';
 
+const BookFormatEnum = z.enum(['Audiobook', 'eBook', 'Print']);
+
 const SearchBooksInputSchema = z.object({
   query: z.string().describe('The book title or author to search for.'),
   genres: z.array(z.string()).optional().describe('A list of preferred genres to filter by.'),
-  formats: z.array(z.nativeEnum(['Audiobook', 'eBook', 'Print'])).optional().describe('A list of preferred formats to filter by.'),
+  formats: z.array(BookFormatEnum).optional().describe('A list of preferred formats to filter by.'),
   sources: z.array(z.string()).optional().describe('A list of preferred sources to search on.'),
 });
 export type SearchBooksInput = z.infer<typeof SearchBooksInputSchema>;
@@ -33,7 +35,7 @@ const BookSchema = z.object({
   author: z.string().describe('The author of the book.'),
   description: z.string().describe('A short description of the book.'),
   isbn: z.string().optional().describe('The ISBN-13 of the book, if available.'),
-  formats: z.array(z.nativeEnum(['Audiobook', 'eBook', 'Print'])).describe('The available formats for the book.'),
+  formats: z.array(BookFormatEnum).describe('The available formats for the book.'),
   sources: z.array(SourceSchema).describe('A list of sources where the book can be found, with URLs.'),
 });
 
@@ -110,7 +112,7 @@ Prioritize books from the following genres: {{#each genres}}{{{this}}}{{#unless 
 For each book, provide the title, author, a brief description, and the book's ISBN-13 if available.
 Based on your knowledge, determine which of the following formats are actually available for the book: 'Audiobook', 'eBook', 'Print'.
 {{#if formats}}
-Only return books that are available in at least one of the preferred formats: {{#each formats}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}. 
+Only return books that are available in at least one of the preferred formats: {{#each formats}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}.
 For the books you return, provide ALL of their available formats, not just the ones the user prefers.
 {{else}}
 Only include the formats that are realistically available for purchase or loan.
