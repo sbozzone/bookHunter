@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import AppLayout from '@/components/layout/app-layout';
 import Header from '@/components/layout/header';
@@ -90,7 +90,6 @@ function SearchPage() {
     const query = searchParams.get('q') || '';
     setSubmittedQuery(query);
     if (!query) {
-      // Only show splash screen on initial load without a query
       const timer = setTimeout(() => setIsLoading(false), 2000);
       return () => clearTimeout(timer);
     } else {
@@ -98,22 +97,22 @@ function SearchPage() {
     }
   }, [searchParams]);
 
+  const performSearch = useCallback(async (query: string) => {
+    setIsSearching(true);
+    const genresToSearch = preferredGenres.length > 0 ? preferredGenres : undefined;
+    const formatsToSearch = preferredFormats.length > 0 ? preferredFormats : undefined;
+    const sourcesToSearch = preferredSources.length > 0 ? preferredSources : undefined;
+
+    const result = await getBooks(query, genresToSearch, formatsToSearch, sourcesToSearch);
+    if (result.books) {
+      setDisplayedBooks(result.books);
+    }
+    setIsSearching(false);
+  }, [preferredGenres, preferredFormats, preferredSources]);
+
+
   useEffect(() => {
     if (!settingsAreInitialized) return;
-
-    const performSearch = (query: string) => {
-      setIsSearching(true);
-      const genresToSearch = preferredGenres.length > 0 ? preferredGenres : undefined;
-      const formatsToSearch = preferredFormats.length > 0 ? preferredFormats : undefined;
-      const sourcesToSearch = preferredSources.length > 0 ? preferredSources : undefined;
-
-      getBooks(query, genresToSearch, formatsToSearch, sourcesToSearch).then(result => {
-        if (result.books) {
-          setDisplayedBooks(result.books);
-        }
-        setIsSearching(false);
-      });
-    }
 
     const query = searchParams.get('q')
     if (query !== null) {
@@ -123,11 +122,10 @@ function SearchPage() {
         setDisplayedBooks([]);
       }
     } else if (!isLoading) {
-      // On initial load without a search query, show featured books after splash
       performSearch('Featured Books');
     }
 
-  }, [searchParams, isLoading, preferredGenres, preferredFormats, preferredSources, settingsAreInitialized]);
+  }, [searchParams, isLoading, settingsAreInitialized, performSearch]);
 
   const handleSearch = (query: string) => {
     const params = new URLSearchParams(searchParams.toString());
