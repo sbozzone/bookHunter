@@ -3,7 +3,7 @@
 import { suggestSimilarBooks } from '@/ai/flows/suggest-similar-books';
 import { searchBooks } from '@/ai/flows/search-books';
 import { z } from 'zod';
-import type { BookFormat } from '@/lib/types';
+import type { BookFormat, SourceName } from '@/lib/types';
 
 const SuggestionSchema = z.object({
   query: z.string().min(2, { message: 'Query must be at least 2 characters.' }),
@@ -37,10 +37,11 @@ const SearchSchema = z.object({
   query: z.string(),
   genres: z.array(z.string()).optional(),
   formats: z.array(z.enum(['Audiobook', 'eBook', 'Print'])).optional(),
+  sources: z.array(z.string()).optional(),
 });
 
-export async function getBooks(query: string, genres?: string[], formats?: BookFormat[]) {
-    const validatedFields = SearchSchema.safeParse({ query, genres, formats });
+export async function getBooks(query: string, genres?: string[], formats?: BookFormat[], sources?: SourceName[]) {
+    const validatedFields = SearchSchema.safeParse({ query, genres, formats, sources });
 
     if (!validatedFields.success) {
         return {

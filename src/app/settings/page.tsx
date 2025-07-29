@@ -9,7 +9,7 @@ import { ThemeSelector } from '@/components/theme-selector';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { availableGenres, availableFormats } from '@/lib/data';
+import { availableGenres, availableFormats, availableSources } from '@/lib/data';
 
 function SettingsContent() {
   const {
@@ -17,6 +17,8 @@ function SettingsContent() {
     toggleGenre,
     preferredFormats,
     toggleFormat,
+    preferredSources,
+    toggleSource,
   } = useSettings();
 
   return (
@@ -80,6 +82,32 @@ function SettingsContent() {
               ))}
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle>Search Sources</CardTitle>
+            <CardDescription>Select which sources you want to search for books on.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {availableSources.map((source) => (
+                    <div key={source} className="flex items-center space-x-2">
+                        <Checkbox
+                            id={`source-${source}`}
+                            checked={preferredSources.includes(source)}
+                            onCheckedChange={() => toggleSource(source)}
+                        />
+                        <label
+                            htmlFor={`source-${source}`}
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                            {source}
+                        </label>
+                    </div>
+                ))}
+            </div>
         </CardContent>
       </Card>
     </div>

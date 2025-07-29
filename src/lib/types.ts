@@ -1,6 +1,22 @@
+export type SourceName = 
+  | 'Libby' 
+  | 'Hoopla' 
+  | 'PDF' 
+  | 'Amazon Used' 
+  | 'Amazon New'
+  | 'Audible'
+  | 'Kobo Audiobooks'
+  | 'All You Can Books'
+  | 'LibriVox'
+  | 'OverDrive'
+  | 'YouTube'
+  | 'Digitalbook.io'
+  | 'Google Audiobooks'
+  | 'Downpour'
+  | 'Libro.fm';
+
 export type Source = {
-  name: 'Libby' | 'Hoopla' | 'PDF' | 'Amazon Used' | 'Amazon New';
-  availability?: 'Available' | 'Unavailable' | 'Check';
+  name: SourceName;
   url: string;
 };
 

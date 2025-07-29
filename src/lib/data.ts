@@ -1,4 +1,4 @@
-import type { Book, BookFormat } from '@/lib/types';
+import type { Book, BookFormat, SourceName } from '@/lib/types';
 
 export const mockBooks: Book[] = [
   {
@@ -9,9 +9,9 @@ export const mockBooks: Book[] = [
     description: 'A novel about the American dream.',
     formats: ['Audiobook', 'eBook', 'Print'],
     sources: [
-      { name: 'Libby', availability: 'Available', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('The Great Gatsby')}` },
-      { name: 'Hoopla', availability: 'Unavailable', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('The Great Gatsby')}` },
-      { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent('The Great Gatsby')}+filetype%3Apdf` },
+      { name: 'Libby', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('The Great Gatsby')}` },
+      { name: 'Hoopla', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('The Great Gatsby')}` },
+      { name: 'PDF', url: `https://www.google.com/search?q=${encodeURIComponent('The Great Gatsby')}+filetype%3Apdf` },
       { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Great Gatsby')}&i=stripbooks-used` },
       { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Great Gatsby')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
     ],
@@ -24,9 +24,9 @@ export const mockBooks: Book[] = [
     description: 'A novel about injustice in the American South.',
     formats: ['eBook', 'Print'],
     sources: [
-      { name: 'Libby', availability: 'Unavailable', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('To Kill a Mockingbird')}` },
-      { name: 'Hoopla', availability: 'Available', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('To Kill a Mockingbird')}` },
-      { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent('To Kill a Mockingbird')}+filetype%3Apdf` },
+      { name: 'Libby', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('To Kill a Mockingbird')}` },
+      { name: 'Hoopla', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('To Kill a Mockingbird')}` },
+      { name: 'PDF', url: `https://www.google.com/search?q=${encodeURIComponent('To Kill a Mockingbird')}+filetype%3Apdf` },
       { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('To Kill a Mockingbird')}&i=stripbooks-used` },
       { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('To Kill a Mockingbird')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
     ],
@@ -39,9 +39,9 @@ export const mockBooks: Book[] = [
     description: 'A dystopian novel about totalitarianism.',
     formats: ['Audiobook', 'Print'],
     sources: [
-      { name: 'Libby', availability: 'Available', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('1984')}` },
-      { name: 'Hoopla', availability: 'Available', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('1984')}` },
-      { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent('1984')}+filetype%3Apdf` },
+      { name: 'Libby', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('1984')}` },
+      { name: 'Hoopla', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('1984')}` },
+      { name: 'PDF', url: `https://www.google.com/search?q=${encodeURIComponent('1984')}+filetype%3Apdf` },
       { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('1984')}&i=stripbooks-used` },
       { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('1984')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
     ],
@@ -54,9 +54,9 @@ export const mockBooks: Book[] = [
     description: 'A romantic novel of manners.',
     formats: ['Audiobook', 'eBook', 'Print'],
     sources: [
-      { name: 'Libby', availability: 'Available', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('Pride and Prejudice')}` },
-      { name: 'Hoopla', availability: 'Available', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('Pride and Prejudice')}` },
-      { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent('Pride and Prejudice')}+filetype%3Apdf` },
+      { name: 'Libby', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('Pride and Prejudice')}` },
+      { name: 'Hoopla', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('Pride and Prejudice')}` },
+      { name: 'PDF', url: `https://www.google.com/search?q=${encodeURIComponent('Pride and Prejudice')}+filetype%3Apdf` },
       { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('Pride and Prejudice')}&i=stripbooks-used` },
       { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('Pride and Prejudice')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
     ],
@@ -69,9 +69,9 @@ export const mockBooks: Book[] = [
     description: 'A fantasy novel and prelude to The Lord of the Rings.',
     formats: ['Audiobook', 'eBook', 'Print'],
     sources: [
-      { name: 'Libby', availability: 'Unavailable', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('The Hobbit')}` },
-      { name: 'Hoopla', availability: 'Available', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('The Hobbit')}` },
-      { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent('The Hobbit')}+filetype%3Apdf` },
+      { name: 'Libby', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('The Hobbit')}` },
+      { name: 'Hoopla', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('The Hobbit')}` },
+      { name: 'PDF', url: `https://www.google.com/search?q=${encodeURIComponent('The Hobbit')}+filetype%3Apdf` },
       { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Hobbit')}&i=stripbooks-used` },
       { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Hobbit')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
     ],
@@ -84,9 +84,9 @@ export const mockBooks: Book[] = [
     description: 'A science fiction epic set in the distant future.',
     formats: ['Audiobook', 'eBook', 'Print'],
     sources: [
-      { name: 'Libby', availability: 'Available', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('Dune')}` },
-      { name: 'Hoopla', availability: 'Unavailable', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('Dune')}` },
-      { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${encodeURIComponent('Dune')}+filetype%3Apdf` },
+      { name: 'Libby', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('Dune')}` },
+      { name: 'Hoopla', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('Dune')}` },
+      { name: 'PDF', url: `https://www.google.com/search?q=${encodeURIComponent('Dune')}+filetype%3Apdf` },
       { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('Dune')}&i=stripbooks-used` },
       { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('Dune')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
     ],
@@ -109,3 +109,21 @@ export const availableGenres = [
 ];
 
 export const availableFormats: BookFormat[] = ['Audiobook', 'eBook', 'Print'];
+
+export const availableSources: SourceName[] = [
+    'Amazon New',
+    'Amazon Used',
+    'Audible',
+    'Kobo Audiobooks',
+    'All You Can Books',
+    'LibriVox',
+    'OverDrive',
+    'Hoopla',
+    'YouTube',
+    'Libby',
+    'Digitalbook.io',
+    'Google Audiobooks',
+    'Downpour',
+    'Libro.fm',
+    'PDF',
+];

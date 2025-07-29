@@ -1,8 +1,8 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
-import type { BookFormat } from '@/lib/types';
-import { availableGenres } from '@/lib/data';
+import type { BookFormat, SourceName } from '@/lib/types';
+import { availableGenres, availableSources } from '@/lib/data';
 
 const SETTINGS_STORAGE_KEY = 'budget-book-hunter-settings';
 
@@ -11,6 +11,8 @@ interface SettingsContextType {
   toggleGenre: (genre: string) => void;
   preferredFormats: BookFormat[];
   toggleFormat: (format: BookFormat) => void;
+  preferredSources: SourceName[];
+  toggleSource: (source: SourceName) => void;
   isInitialized: boolean;
 }
 
@@ -19,12 +21,14 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 const defaultSettings = {
     preferredGenres: [],
     preferredFormats: [],
+    preferredSources: ['Amazon New', 'Amazon Used', 'Libby', 'Hoopla', 'PDF'],
 }
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [preferredGenres, setPreferredGenres] = useState<string[]>([]);
   const [preferredFormats, setPreferredFormats] = useState<BookFormat[]>([]);
+  const [preferredSources, setPreferredSources] = useState<SourceName[]>(defaultSettings.preferredSources);
   
   useEffect(() => {
     try {
@@ -37,6 +41,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         if (settings.preferredFormats) {
             setPreferredFormats(settings.preferredFormats);
         }
+        if (settings.preferredSources) {
+            setPreferredSources(settings.preferredSources);
+        }
       }
     } catch (error) {
       console.warn('Error reading settings from localStorage.', error);
@@ -48,13 +55,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isInitialized) {
       try {
-        const settings = { preferredGenres, preferredFormats };
+        const settings = { preferredGenres, preferredFormats, preferredSources };
         window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
       } catch (error) {
          console.warn('Error saving settings to localStorage.', error);
       }
     }
-  }, [preferredGenres, preferredFormats, isInitialized]);
+  }, [preferredGenres, preferredFormats, preferredSources, isInitialized]);
 
 
   const toggleGenre = useCallback((genre: string) => {
@@ -73,6 +80,14 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const toggleSource = useCallback((source: SourceName) => {
+    setPreferredSources(prev =>
+        prev.includes(source)
+            ? prev.filter(s => s !== source)
+            : [...prev, source]
+    );
+    }, []);
+
   return (
     <SettingsContext.Provider
       value={{ 
@@ -80,6 +95,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         toggleGenre, 
         preferredFormats,
         toggleFormat,
+        preferredSources,
+        toggleSource,
         isInitialized 
     }}
     >

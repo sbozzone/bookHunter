@@ -77,7 +77,7 @@ function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { preferredGenres, preferredFormats, isInitialized: settingsAreInitialized } = useSettings();
+  const { preferredGenres, preferredFormats, preferredSources, isInitialized: settingsAreInitialized } = useSettings();
   const [isLoading, setIsLoading] = useState(true);
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
@@ -102,8 +102,9 @@ function SearchPage() {
       setIsSearching(true);
       const genresToSearch = preferredGenres.length > 0 ? preferredGenres : undefined;
       const formatsToSearch = preferredFormats.length > 0 ? preferredFormats : undefined;
+      const sourcesToSearch = preferredSources.length > 0 ? preferredSources : undefined;
 
-      getBooks(query, genresToSearch, formatsToSearch).then(result => {
+      getBooks(query, genresToSearch, formatsToSearch, sourcesToSearch).then(result => {
         if (result.books) {
           setDisplayedBooks(result.books);
         }
@@ -119,7 +120,7 @@ function SearchPage() {
     } else {
       setDisplayedBooks([]);
     }
-  }, [submittedQuery, isLoading, preferredGenres, preferredFormats, settingsAreInitialized]);
+  }, [submittedQuery, isLoading, preferredGenres, preferredFormats, preferredSources, settingsAreInitialized]);
 
   const handleSearch = (query: string) => {
     const params = new URLSearchParams(searchParams.toString());

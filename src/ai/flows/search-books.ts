@@ -11,14 +11,21 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { v4 as uuidv4 } from 'uuid';
-import type { BookFormat } from '@/lib/types';
+import type { BookFormat, SourceName } from '@/lib/types';
+import { availableSources } from '@/lib/data';
 
 const SearchBooksInputSchema = z.object({
   query: z.string().describe('The book title or author to search for.'),
   genres: z.array(z.string()).optional().describe('A list of preferred genres to filter by.'),
   formats: z.array(z.nativeEnum(['Audiobook', 'eBook', 'Print'])).optional().describe('A list of preferred formats to filter by.'),
+  sources: z.array(z.string()).optional().describe('A list of preferred sources to search on.'),
 });
 export type SearchBooksInput = z.infer<typeof SearchBooksInputSchema>;
+
+const SourceSchema = z.object({
+    name: z.string().describe('The name of the source, e.g., "Amazon", "Libby".'),
+    url: z.string().url().describe('The direct URL to the book on the source\'s website.'),
+});
 
 const BookSchema = z.object({
   title: z.string().describe('The title of the book.'),
@@ -26,6 +33,7 @@ const BookSchema = z.object({
   description: z.string().describe('A short description of the book.'),
   isbn: z.string().optional().describe('The ISBN-13 of the book, if available.'),
   formats: z.array(z.nativeEnum(['Audiobook', 'eBook', 'Print'])).describe('The available formats for the book.'),
+  sources: z.array(SourceSchema).describe('A list of sources where the book can be found, with URLs.'),
 });
 
 const SearchBooksOutputSchema = z.object({
@@ -76,20 +84,12 @@ export async function searchBooks(
 
   const booksWithFullData = await Promise.all(
     booksFromFlow.books.map(async (book) => {
-      const titleQuery = encodeURIComponent(book.title);
       const coverUrl = await getCoverUrl(book);
 
       return {
         ...book,
         id: uuidv4(),
         coverUrl,
-        sources: [
-          { name: 'Libby', availability: 'Check', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${titleQuery}` },
-          { name: 'Hoopla', availability: 'Check', url: `https://www.hoopladigital.com/search?q=${titleQuery}` },
-          { name: 'PDF', availability: 'Check', url: `https://www.google.com/search?q=${titleQuery}+filetype%3Apdf` },
-          { name: 'Amazon Used', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}&i=stripbooks-used` },
-          { name: 'Amazon New', availability: 'Available', url: `https://www.amazon.com/s?k=${titleQuery}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
-        ],
       };
     })
   );
@@ -105,6 +105,7 @@ const prompt = ai.definePrompt({
 {{#if genres}}
 Prioritize books from the following genres: {{#each genres}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}.
 {{/if}}
+
 For each book, provide the title, author, a brief description, and the book's ISBN-13 if available.
 Based on your knowledge, determine which of the following formats are actually available for the book: 'Audiobook', 'eBook', 'Print'.
 {{#if formats}}
@@ -113,6 +114,21 @@ For the books you return, provide ALL of their available formats, not just the o
 {{else}}
 Only include the formats that are realistically available for purchase or loan.
 {{/if}}
+
+For each book, provide valid search URLs for the following sources:
+{{#if sources}}
+{{#each sources}}
+- {{{this}}}
+{{/each}}
+{{else}}
+- Amazon New
+- Amazon Used
+- Libby
+- Hoopla
+- PDF
+{{/if}}
+Construct the URLs to be as accurate as possible for searching for the specific book title. For example, for Amazon Used, use a URL like 'https://www.amazon.com/s?k=TITLE&i=stripbooks-used'. For Libby, use a google search scoped to their site: 'https://www.google.com/search?q=site%3Alibbyapp.com+TITLE'.
+
 Ensure the information is accurate. If no books are found, return an empty list.`,
 });
 
