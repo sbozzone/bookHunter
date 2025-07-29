@@ -98,22 +98,20 @@ function SearchPage() {
   }, [searchParams]);
 
   const performSearch = useCallback(async (query: string) => {
+    if (!settingsAreInitialized) return;
     setIsSearching(true);
-    const genresToSearch = preferredGenres.length > 0 ? preferredGenres : undefined;
-    const formatsToSearch = preferredFormats.length > 0 ? preferredFormats : undefined;
-    const sourcesToSearch = preferredSources.length > 0 ? preferredSources : undefined;
+    setDisplayedBooks([]);
 
-    const result = await getBooks(query, genresToSearch, formatsToSearch, sourcesToSearch);
+    const result = await getBooks(query, preferredGenres, preferredFormats, preferredSources);
+    
     if (result.books) {
       setDisplayedBooks(result.books);
     }
     setIsSearching(false);
-  }, [preferredGenres, preferredFormats, preferredSources]);
+  }, [settingsAreInitialized, preferredGenres, preferredFormats, preferredSources]);
 
 
   useEffect(() => {
-    if (!settingsAreInitialized) return;
-
     const query = searchParams.get('q')
     if (query !== null) {
       if (query.trim() !== '') {
@@ -125,7 +123,7 @@ function SearchPage() {
       performSearch('Featured Books');
     }
 
-  }, [searchParams, isLoading, settingsAreInitialized, performSearch]);
+  }, [searchParams, isLoading, performSearch]);
 
   const handleSearch = (query: string) => {
     const params = new URLSearchParams(searchParams.toString());
