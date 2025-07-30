@@ -28,16 +28,7 @@ const nextConfig = {
     ],
   },
   experimental: {
-  },
-  allowedDevOrigins: ["*.cloudworkstations.dev"],
-  webpack: (config, { isServer, dev }) => {
-    if (dev && !isServer) {
-      const { devServer } = config;
-      if (devServer) {
-        devServer.webSocketURL = `wss://${process.env.MONOSPACE_SERVER_HOST || 'localhost'}${process.env.MONOSPACE_SERVER_PORT ? `:${process.env.MONOSPACE_SERVER_PORT}` : ''}/_next/webpack-hmr`;
-      }
-    }
-    return config;
+    allowedDevOrigins: ["*.cloudworkstations.dev"],
   },
 };
 

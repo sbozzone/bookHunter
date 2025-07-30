@@ -13,18 +13,18 @@ const SuggestionSchema = z.object({
 });
 
 export async function getSuggestions(prevState: any, formData: FormData) {
-  const validatedFields = SuggestionSchema.safeParse({
-    query: formData.get('query'),
-  });
-
-  if (!validatedFields.success) {
-    return {
-      message: 'Invalid query.',
-      suggestions: [],
-    };
-  }
-
   try {
+    const validatedFields = SuggestionSchema.safeParse({
+      query: formData.get('query'),
+    });
+
+    if (!validatedFields.success) {
+      return {
+        message: 'Invalid query.',
+        suggestions: [],
+      };
+    }
+
     const result = await suggestSimilarBooks({ query: validatedFields.data.query });
     return { suggestions: result.suggestions, message: null, error: null };
   } catch (error) {
@@ -48,7 +48,7 @@ const SearchSchema = z.object({
 });
 
 async function getSettingsFromCookies() {
-    const settingsCookie = cookies().get(SETTINGS_STORAGE_KEY);
+    const settingsCookie = await cookies().get(SETTINGS_STORAGE_KEY);
     if (settingsCookie) {
         try {
             const settings = JSON.parse(settingsCookie.value);
