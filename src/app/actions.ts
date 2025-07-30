@@ -94,10 +94,10 @@ export async function getBooks(query: string) {
       const result = await searchBooks(validatedFields.data);
       return { books: result.books, error: null };
     } catch (error) {
-        console.error('Error in getBooks server action:', error);
+        console.error('CRITICAL ERROR in getBooks:', error);
         const errorMessage = error instanceof Error && error.message ? error.message : 'An unexpected error occurred.';
         return {
-            error: `Failed to get books: ${errorMessage}`,
+            error: `Failed to fetch books: ${errorMessage}`,
             books: [],
         };
     }
