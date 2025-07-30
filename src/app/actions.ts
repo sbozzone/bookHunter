@@ -46,7 +46,7 @@ const SearchSchema = z.object({
 });
 
 async function getSettingsFromCookies() {
-    const settingsCookie = cookies().get(SETTINGS_STORAGE_KEY);
+    const settingsCookie = await cookies().get(SETTINGS_STORAGE_KEY);
     if (settingsCookie) {
         try {
             const settings = JSON.parse(settingsCookie.value);
