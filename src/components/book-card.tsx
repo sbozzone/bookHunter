@@ -12,6 +12,7 @@ import type { Book, Source } from '@/lib/types';
 import { Headphones, BookOpen, Book as BookIcon, ExternalLink } from 'lucide-react';
 import { AddToWatchlistButton } from './add-to-watchlist-button';
 import { Button } from './ui/button';
+import { sourceData } from '@/lib/data';
 
 const formatIcons: Record<Book['formats'][number], React.ReactNode> = {
   Audiobook: <Headphones className="w-4 h-4" />,
@@ -34,6 +35,12 @@ const SourceInfo = ({ source }: { source: Source }) => {
 
 
 export default function BookCard({ book, priority = false }: { book: Book, priority?: boolean }) {
+  const availableSources = book.sources.filter(source => {
+    const sourceInfo = sourceData.find(sd => sd.name === source.name);
+    if (!sourceInfo) return false;
+    return sourceInfo.formats.some(format => book.formats.includes(format));
+  });
+
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-shadow duration-300 hover:shadow-xl">
       <CardHeader className="flex flex-row items-start gap-4 p-4">
@@ -62,7 +69,7 @@ export default function BookCard({ book, priority = false }: { book: Book, prior
       </CardHeader>
       <CardContent className="p-4 pt-0 flex-grow">
         <div className="space-y-2">
-            {book.sources && book.sources.map(source => <SourceInfo key={source.name} source={source} />)}
+            {availableSources.map(source => <SourceInfo key={source.name} source={source} />)}
         </div>
         {book.isbn && (
           <div className="mt-2 pt-2 border-t border-dashed">
