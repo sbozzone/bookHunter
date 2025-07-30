@@ -97,33 +97,33 @@ function SearchPage() {
     }
   }, [searchParams]);
 
-  const performSearch = useCallback(async (query: string) => {
-    if (!settingsAreInitialized) return;
-    setIsSearching(true);
-    setDisplayedBooks([]);
-
-    const result = await getBooks(query);
-    
-    if (result.books) {
-      setDisplayedBooks(result.books);
-    }
-    setIsSearching(false);
-  }, [settingsAreInitialized]);
-
-
   useEffect(() => {
+    const performSearch = async (query: string) => {
+        if (!settingsAreInitialized) return;
+        setIsSearching(true);
+        setDisplayedBooks([]);
+    
+        const result = await getBooks(query);
+        
+        if (result.books) {
+          setDisplayedBooks(result.books);
+        }
+        setIsSearching(false);
+    }
+    
     const query = searchParams.get('q')
     if (query !== null) {
       if (query.trim() !== '') {
         performSearch(query);
       } else {
         setDisplayedBooks([]);
+        setIsSearching(false);
       }
     } else if (!isLoading) {
       performSearch('Featured Books');
     }
 
-  }, [searchParams, isLoading, performSearch]);
+  }, [searchParams, isLoading, settingsAreInitialized]);
 
   const handleSearch = (query: string) => {
     const params = new URLSearchParams(searchParams.toString());
