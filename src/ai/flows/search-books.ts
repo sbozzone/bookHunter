@@ -130,7 +130,7 @@ For each book, provide valid search URLs for the following sources:
 - PDF
 - Audible
 - YouTube
-- Google Audiobooks
+- Google Play
 {{/if}}
 
 Construct the URLs to be as accurate as possible for searching for the specific book title. Replace TITLE with the book's title.
@@ -140,7 +140,7 @@ Construct the URLs to be as accurate as possible for searching for the specific 
 - PDF: 'https://www.google.com/search?q=TITLE+filetype%3Apdf'
 - Audible: 'https://www.audible.com/search?keywords=TITLE'
 - YouTube: 'https://www.youtube.com/results?search_query=TITLE+audiobook'
-- Google Audiobooks: 'https://play.google.com/store/search?q=TITLE&c=books&target=audiobooks'
+- Google Play: 'https://play.google.com/store/search?q=TITLE&c=books'
 
 Ensure the information is accurate. If no books are found, return an empty list.`,
 });

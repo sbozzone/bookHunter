@@ -5,7 +5,7 @@ export type SourceName =
   | 'Amazon'
   | 'Audible'
   | 'YouTube'
-  | 'Google Audiobooks';
+  | 'Google Play';
 
 export type Source = {
   name: SourceName;

@@ -110,7 +110,7 @@ export const sourceData: SourceData[] = [
   { name: 'Hoopla', formats: ['Audiobook', 'eBook'], note: 'Library provider' },
   { name: 'Libby', formats: ['Audiobook', 'eBook'], note: 'App for OverDrive' },
   { name: 'YouTube', formats: ['Audiobook'], note: 'Unofficial uploads' },
-  { name: 'Google Audiobooks', formats: ['Audiobook', 'eBook'], note: 'Also sells eBooks' },
+  { name: 'Google Play', formats: ['Audiobook', 'eBook'], note: 'Sells eBooks and Audiobooks' },
   { name: 'PDF', formats: ['eBook', 'Print'], note: 'General PDF search' },
 ];
 
