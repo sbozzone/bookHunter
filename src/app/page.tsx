@@ -78,7 +78,7 @@ function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { preferredGenres, preferredFormats, preferredSources, isInitialized: settingsAreInitialized } = useSettings();
+  const { preferredSources, isInitialized: settingsAreInitialized } = useSettings();
   const [isLoading, setIsLoading] = useState(true);
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
@@ -102,13 +102,13 @@ function SearchPage() {
     setIsSearching(true);
     setDisplayedBooks([]);
 
-    const result = await getBooks(query, preferredGenres, preferredFormats, preferredSources);
+    const result = await getBooks(query);
     
     if (result.books) {
       setDisplayedBooks(result.books);
     }
     setIsSearching(false);
-  }, [settingsAreInitialized, preferredGenres, preferredFormats, preferredSources]);
+  }, [settingsAreInitialized]);
 
 
   useEffect(() => {

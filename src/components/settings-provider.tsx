@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect, useCallback, useMemo } from 'react';
 import type { BookFormat, SourceName } from '@/lib/types';
 import { availableGenres, availableSources, availableFormats } from '@/lib/data';
 
@@ -26,6 +26,16 @@ const defaultSettings = {
     preferredGenres: [],
     preferredFormats: [],
     preferredSources: availableSources,
+}
+
+function setCookie(name: string, value: string, days: number) {
+    let expires = "";
+    if (days) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/";
 }
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
@@ -60,7 +70,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     if (isInitialized) {
       try {
         const settings = { preferredGenres, preferredFormats, preferredSources };
-        window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+        const settingsString = JSON.stringify(settings);
+        window.localStorage.setItem(SETTINGS_STORAGE_KEY, settingsString);
+        setCookie(SETTINGS_STORAGE_KEY, settingsString, 7);
       } catch (error) {
          console.warn('Error saving settings to localStorage.', error);
       }
@@ -116,7 +128,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const contextValue = React.useMemo(() => ({
+  const contextValue = useMemo(() => ({
     preferredGenres, 
     toggleGenre,
     setAllGenres,
