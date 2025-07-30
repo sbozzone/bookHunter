@@ -29,10 +29,11 @@ export async function getSuggestions(prevState: any, formData: FormData) {
     return { suggestions: result.suggestions, message: null, error: null };
   } catch (error) {
     console.error('Error getting suggestions:', error);
+    const errorMessage = error instanceof Error && error.message ? error.message : 'An unexpected error occurred.';
     return {
-      message: 'Failed to get suggestions. Please try again.',
+      message: `Failed to get suggestions. Please try again. ${errorMessage}`,
       suggestions: [],
-      error: 'An unexpected error occurred.',
+      error: errorMessage,
     };
   }
 }
@@ -46,7 +47,7 @@ const SearchSchema = z.object({
   sources: z.array(z.string()).optional(),
 });
 
-function getSettingsFromCookies() {
+async function getSettingsFromCookies() {
     const settingsCookie = cookies().get(SETTINGS_STORAGE_KEY);
     if (settingsCookie) {
         try {
@@ -69,7 +70,7 @@ function getSettingsFromCookies() {
 
 export async function getBooks(query: string) {
     try {
-      const { preferredGenres, preferredFormats, preferredSources } = getSettingsFromCookies();
+      const { preferredGenres, preferredFormats, preferredSources } = await getSettingsFromCookies();
 
       const validatedFields = SearchSchema.safeParse({ 
           query, 
@@ -94,7 +95,6 @@ export async function getBooks(query: string) {
       return { books: result.books, error: null };
     } catch (error) {
         console.error('Error in getBooks server action:', error);
-        // Check if the error is a Genkit/API error with a specific structure
         const errorMessage = error instanceof Error && error.message ? error.message : 'An unexpected error occurred.';
         return {
             error: `Failed to get books: ${errorMessage}`,
