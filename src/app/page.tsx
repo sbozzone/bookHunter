@@ -83,6 +83,7 @@ function SearchPage() {
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [noResults, setNoResults] = useState(false);
 
   const sourcesCount = preferredSources.length > 0 ? preferredSources.length : 5;
 
@@ -101,12 +102,15 @@ function SearchPage() {
     const performSearch = async (query: string) => {
         if (!settingsAreInitialized) return;
         setIsSearching(true);
+        setNoResults(false);
         setDisplayedBooks([]);
     
         const result = await getBooks(query);
         
-        if (result.books) {
+        if (result.books && result.books.length > 0) {
           setDisplayedBooks(result.books);
+        } else {
+          setNoResults(true);
         }
         setIsSearching(false);
     }
@@ -119,11 +123,15 @@ function SearchPage() {
         setDisplayedBooks([]);
         setIsSearching(false);
       }
-    } else if (!isLoading) {
-      performSearch('Featured Books');
+    } else if (!isLoading && !isSearching) {
+      // Only search for featured books if we are not already searching
+      // and there are no books currently displayed
+      if (displayedBooks.length === 0 && !noResults) {
+        performSearch('Featured Books');
+      }
     }
 
-  }, [searchParams, isLoading, settingsAreInitialized]);
+  }, [searchParams, isLoading, settingsAreInitialized, displayedBooks.length, noResults]);
 
   const handleSearch = (query: string) => {
     const params = new URLSearchParams(searchParams.toString());
