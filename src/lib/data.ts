@@ -12,8 +12,7 @@ export const mockBooks: Book[] = [
       { name: 'Libby', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('The Great Gatsby')}` },
       { name: 'Hoopla', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('The Great Gatsby')}` },
       { name: 'PDF', url: `https://www.google.com/search?q=${encodeURIComponent('The Great Gatsby')}+filetype%3Apdf` },
-      { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Great Gatsby')}&i=stripbooks-used` },
-      { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Great Gatsby')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
+      { name: 'Amazon', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Great Gatsby')}` },
     ],
   },
   {
@@ -27,8 +26,7 @@ export const mockBooks: Book[] = [
       { name: 'Libby', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('To Kill a Mockingbird')}` },
       { name: 'Hoopla', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('To Kill a Mockingbird')}` },
       { name: 'PDF', url: `https://www.google.com/search?q=${encodeURIComponent('To Kill a Mockingbird')}+filetype%3Apdf` },
-      { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('To Kill a Mockingbird')}&i=stripbooks-used` },
-      { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('To Kill a Mockingbird')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
+      { name: 'Amazon', url: `https://www.amazon.com/s?k=${encodeURIComponent('To Kill a Mockingbird')}` },
     ],
   },
   {
@@ -42,8 +40,7 @@ export const mockBooks: Book[] = [
       { name: 'Libby', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('1984')}` },
       { name: 'Hoopla', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('1984')}` },
       { name: 'PDF', url: `https://www.google.com/search?q=${encodeURIComponent('1984')}+filetype%3Apdf` },
-      { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('1984')}&i=stripbooks-used` },
-      { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('1984')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
+      { name: 'Amazon', url: `https://www.amazon.com/s?k=${encodeURIComponent('1984')}` },
     ],
   },
    {
@@ -57,8 +54,7 @@ export const mockBooks: Book[] = [
       { name: 'Libby', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('Pride and Prejudice')}` },
       { name: 'Hoopla', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('Pride and Prejudice')}` },
       { name: 'PDF', url: `https://www.google.com/search?q=${encodeURIComponent('Pride and Prejudice')}+filetype%3Apdf` },
-      { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('Pride and Prejudice')}&i=stripbooks-used` },
-      { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('Pride and Prejudice')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
+      { name: 'Amazon', url: `https://www.amazon.com/s?k=${encodeURIComponent('Pride and Prejudice')}` },
     ],
   },
    {
@@ -72,8 +68,7 @@ export const mockBooks: Book[] = [
       { name: 'Libby', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('The Hobbit')}` },
       { name: 'Hoopla', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('The Hobbit')}` },
       { name: 'PDF', url: `https://www.google.com/search?q=${encodeURIComponent('The Hobbit')}+filetype%3Apdf` },
-      { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Hobbit')}&i=stripbooks-used` },
-      { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Hobbit')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
+      { name: 'Amazon', url: `https://www.amazon.com/s?k=${encodeURIComponent('The Hobbit')}` },
     ],
   },
    {
@@ -87,8 +82,7 @@ export const mockBooks: Book[] = [
       { name: 'Libby', url: `https://www.google.com/search?q=site%3Alibbyapp.com+${encodeURIComponent('Dune')}` },
       { name: 'Hoopla', url: `https://www.hoopladigital.com/search?q=${encodeURIComponent('Dune')}` },
       { name: 'PDF', url: `https://www.google.com/search?q=${encodeURIComponent('Dune')}+filetype%3Apdf` },
-      { name: 'Amazon Used', url: `https://www.amazon.com/s?k=${encodeURIComponent('Dune')}&i=stripbooks-used` },
-      { name: 'Amazon New', url: `https://www.amazon.com/s?k=${encodeURIComponent('Dune')}&i=stripbooks&rh=p_n_condition-type%3A1294422011` },
+      { name: 'Amazon', url: `https://www.amazon.com/s?k=${encodeURIComponent('Dune')}` },
     ],
   },
 ];
@@ -111,8 +105,7 @@ export const availableGenres = [
 export const availableFormats: BookFormat[] = ['Audiobook', 'eBook', 'Print'];
 
 export const sourceData: SourceData[] = [
-  { name: 'Amazon New', formats: ['Audiobook', 'eBook', 'Print'], note: 'Also sells used books' },
-  { name: 'Amazon Used', formats: ['Print'], note: 'Marketplace for used books' },
+  { name: 'Amazon', formats: ['Audiobook', 'eBook', 'Print'], note: 'New and used books, ebooks, and audiobooks' },
   { name: 'Audible', formats: ['Audiobook'], note: 'Amazon company' },
   { name: 'Hoopla', formats: ['Audiobook', 'eBook'], note: 'Library provider' },
   { name: 'Libby', formats: ['Audiobook', 'eBook'], note: 'App for OverDrive' },

@@ -124,8 +124,7 @@ For each book, provide valid search URLs for the following sources:
 - {{{this}}}
 {{/each}}
 {{else}}
-- Amazon New
-- Amazon Used
+- Amazon
 - Libby
 - Hoopla
 - PDF
@@ -135,8 +134,7 @@ For each book, provide valid search URLs for the following sources:
 {{/if}}
 
 Construct the URLs to be as accurate as possible for searching for the specific book title. Replace TITLE with the book's title.
-- Amazon Used: 'https://www.amazon.com/s?k=TITLE&i=stripbooks-used'
-- Amazon New: 'https://www.amazon.com/s?k=TITLE&i=stripbooks&rh=p_n_condition-type%3A1294422011'
+- Amazon: 'https://www.amazon.com/s?k=TITLE'
 - Libby: 'https://www.google.com/search?q=site%3Alibbyapp.com+TITLE'
 - Hoopla: 'https://www.hoopladigital.com/search?q=TITLE'
 - PDF: 'https://www.google.com/search?q=TITLE+filetype%3Apdf'
@@ -158,4 +156,3 @@ const searchBooksFlow = ai.defineFlow(
     return output || { books: [] };
   }
 );
-

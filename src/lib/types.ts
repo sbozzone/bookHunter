@@ -2,8 +2,7 @@ export type SourceName =
   | 'Libby' 
   | 'Hoopla' 
   | 'PDF' 
-  | 'Amazon Used' 
-  | 'Amazon New'
+  | 'Amazon'
   | 'Audible'
   | 'YouTube'
   | 'Google Audiobooks';
