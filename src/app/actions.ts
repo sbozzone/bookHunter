@@ -45,8 +45,8 @@ const SearchSchema = z.object({
   sources: z.array(z.string()).optional(),
 });
 
-async function getSettingsFromCookies() {
-    const settingsCookie = await cookies().get(SETTINGS_STORAGE_KEY);
+function getSettingsFromCookies() {
+    const settingsCookie = cookies().get(SETTINGS_STORAGE_KEY);
     if (settingsCookie) {
         try {
             const settings = JSON.parse(settingsCookie.value);
@@ -67,7 +67,7 @@ async function getSettingsFromCookies() {
 }
 
 export async function getBooks(query: string) {
-    const { preferredGenres, preferredFormats, preferredSources } = await getSettingsFromCookies();
+    const { preferredGenres, preferredFormats, preferredSources } = getSettingsFromCookies();
 
     const validatedFields = SearchSchema.safeParse({ 
         query, 
