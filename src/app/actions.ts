@@ -47,36 +47,20 @@ const SearchSchema = z.object({
   sources: z.array(z.string()).optional(),
 });
 
-async function getSettingsFromCookies() {
-    const settingsCookie = await cookies().get(SETTINGS_STORAGE_KEY);
-    if (settingsCookie) {
-        try {
-            const settings = JSON.parse(settingsCookie.value);
-            return {
-                preferredGenres: settings.preferredGenres || [],
-                preferredFormats: settings.preferredFormats || [],
-                preferredSources: settings.preferredSources || availableSources,
-            }
-        } catch (e) {
-           // Corrupted cookie
-        }
-    }
-    return {
-        preferredGenres: [],
-        preferredFormats: [],
-        preferredSources: availableSources,
-    }
+type SearchInputs = {
+    query: string;
+    preferredGenres: string[];
+    preferredFormats: BookFormat[];
+    preferredSources: SourceName[];
 }
 
-export async function getBooks(query: string) {
+export async function getBooks({ query, preferredGenres, preferredFormats, preferredSources }: SearchInputs) {
     try {
-      const { preferredGenres, preferredFormats, preferredSources } = await getSettingsFromCookies();
-
-      const validatedFields = SearchSchema.safeParse({ 
-          query, 
-          genres: preferredGenres && preferredGenres.length > 0 ? preferredGenres : undefined, 
-          formats: preferredFormats && preferredFormats.length > 0 ? preferredFormats : undefined, 
-          sources: preferredSources && preferredSources.length > 0 ? preferredSources : undefined 
+      const validatedFields = SearchSchema.safeParse({
+          query,
+          genres: preferredGenres && preferredGenres.length > 0 ? preferredGenres : undefined,
+          formats: preferredFormats && preferredFormats.length > 0 ? preferredFormats : undefined,
+          sources: preferredSources && preferredSources.length > 0 ? preferredSources : undefined
       });
 
       if (!validatedFields.success) {

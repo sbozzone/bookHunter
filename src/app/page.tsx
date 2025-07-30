@@ -79,7 +79,7 @@ function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { preferredSources, isInitialized: settingsAreInitialized } = useSettings();
+  const { preferredGenres, preferredFormats, preferredSources, isInitialized: settingsAreInitialized } = useSettings();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [submittedQuery, setSubmittedQuery] = useState('');
@@ -97,41 +97,38 @@ function SearchPage() {
     return () => clearTimeout(timer);
   }, []);
   
+  const performSearch = useCallback(async (query: string | null) => {
+    if (query === null && hasPerformedInitialSearch.current) {
+        return;
+    }
+
+    setIsSearching(true);
+    setNoResults(false);
+    
+    const searchQuery = query === null ? 'Featured Books' : query;
+    const result = await getBooks({ query: searchQuery, preferredGenres, preferredFormats, preferredSources });
+
+    if (result.error) {
+      toast({ variant: 'destructive', title: 'Search Failed', description: result.error });
+    }
+    setDisplayedBooks(result.books || []);
+    setNoResults(!result.books || result.books.length === 0);
+    setIsSearching(false);
+    
+    if (query === null) {
+      hasPerformedInitialSearch.current = true;
+    }
+  }, [preferredGenres, preferredFormats, preferredSources, toast]);
+
   useEffect(() => {
     if (!settingsAreInitialized || isLoading) {
       return; 
     }
-
-    const performSearch = async () => {
-      const query = searchParams.get('q');
-      
-      if (query === null && !hasPerformedInitialSearch.current) {
-        hasPerformedInitialSearch.current = true;
-        setIsSearching(true);
-        setNoResults(false);
-        const result = await getBooks('Featured Books');
-        if (result.error) {
-          toast({ variant: 'destructive', title: 'Search Failed', description: result.error });
-        }
-        setDisplayedBooks(result.books || []);
-        setNoResults(!result.books || result.books.length === 0);
-        setIsSearching(false);
-      } else if (query !== null) {
-        setIsSearching(true);
-        setNoResults(false);
-        const result = await getBooks(query);
-        if (result.error) {
-          toast({ variant: 'destructive', title: 'Search Failed', description: result.error });
-        }
-        setDisplayedBooks(result.books || []);
-        setNoResults(!result.books || result.books.length === 0);
-        setIsSearching(false);
-      }
-    };
     
-    performSearch();
+    const query = searchParams.get('q');
+    performSearch(query);
 
-  }, [searchParams, settingsAreInitialized, isLoading, toast]);
+  }, [searchParams, settingsAreInitialized, isLoading, performSearch]);
 
   const handleSearch = (query: string) => {
     const params = new URLSearchParams(searchParams.toString());
