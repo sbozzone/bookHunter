@@ -26,12 +26,13 @@ export async function getSuggestions(prevState: any, formData: FormData) {
 
   try {
     const result = await suggestSimilarBooks({ query: validatedFields.data.query });
-    return { suggestions: result.suggestions, message: null };
+    return { suggestions: result.suggestions, message: null, error: null };
   } catch (error) {
-    console.error(error);
+    console.error('Error getting suggestions:', error);
     return {
       message: 'Failed to get suggestions. Please try again.',
       suggestions: [],
+      error: 'An unexpected error occurred.',
     };
   }
 }
@@ -67,34 +68,36 @@ function getSettingsFromCookies() {
 }
 
 export async function getBooks(query: string) {
-    const { preferredGenres, preferredFormats, preferredSources } = getSettingsFromCookies();
-
-    const validatedFields = SearchSchema.safeParse({ 
-        query, 
-        genres: preferredGenres && preferredGenres.length > 0 ? preferredGenres : undefined, 
-        formats: preferredFormats && preferredFormats.length > 0 ? preferredFormats : undefined, 
-        sources: preferredSources && preferredSources.length > 0 ? preferredSources : undefined 
-    });
-
-    if (!validatedFields.success) {
-        console.error('Validation Errors:', validatedFields.error.flatten().fieldErrors);
-        return {
-            error: 'Invalid search parameters.',
-            books: [],
-        };
-    }
-
-    if (validatedFields.data.query.trim() === '') {
-      return { books: [] };
-    }
-
     try {
-        const result = await searchBooks(validatedFields.data);
-        return { books: result.books };
+      const { preferredGenres, preferredFormats, preferredSources } = getSettingsFromCookies();
+
+      const validatedFields = SearchSchema.safeParse({ 
+          query, 
+          genres: preferredGenres && preferredGenres.length > 0 ? preferredGenres : undefined, 
+          formats: preferredFormats && preferredFormats.length > 0 ? preferredFormats : undefined, 
+          sources: preferredSources && preferredSources.length > 0 ? preferredSources : undefined 
+      });
+
+      if (!validatedFields.success) {
+          console.error('Validation Errors:', validatedFields.error.flatten().fieldErrors);
+          return {
+              error: 'Invalid search parameters.',
+              books: [],
+          };
+      }
+
+      if (validatedFields.data.query.trim() === '') {
+        return { books: [] };
+      }
+
+      const result = await searchBooks(validatedFields.data);
+      return { books: result.books, error: null };
     } catch (error) {
-        console.error(error);
+        console.error('Error in getBooks server action:', error);
+        // Check if the error is a Genkit/API error with a specific structure
+        const errorMessage = error instanceof Error && error.message ? error.message : 'An unexpected error occurred.';
         return {
-            error: 'Failed to get books. Please try again.',
+            error: `Failed to get books: ${errorMessage}`,
             books: [],
         };
     }

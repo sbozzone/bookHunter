@@ -12,6 +12,7 @@ import { getBooks } from '@/app/actions';
 import { BookMarked } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useSettings } from '@/components/settings-provider';
+import { useToast } from '@/hooks/use-toast';
 
 function SplashScreen() {
   const [progress, setProgress] = useState(0);
@@ -79,6 +80,7 @@ function SearchPage() {
   const router = useRouter();
   const pathname = usePathname();
   const { preferredSources, isInitialized: settingsAreInitialized } = useSettings();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
@@ -90,6 +92,7 @@ function SearchPage() {
   useEffect(() => {
     const query = searchParams.get('q') || '';
     setSubmittedQuery(query);
+    // This effect handles the initial loading splash screen
     if (!query) {
       const timer = setTimeout(() => setIsLoading(false), 2000);
       return () => clearTimeout(timer);
@@ -99,39 +102,47 @@ function SearchPage() {
   }, [searchParams]);
 
   useEffect(() => {
-    const performSearch = async (query: string) => {
-        if (!settingsAreInitialized) return;
-        setIsSearching(true);
-        setNoResults(false);
-        setDisplayedBooks([]);
-    
-        const result = await getBooks(query);
-        
-        if (result.books && result.books.length > 0) {
-          setDisplayedBooks(result.books);
-        } else {
-          setNoResults(true);
-        }
-        setIsSearching(false);
-    }
-    
-    const query = searchParams.get('q')
-    if (query !== null) {
-      if (query.trim() !== '') {
-        performSearch(query);
-      } else {
-        setDisplayedBooks([]);
-        setIsSearching(false);
-      }
-    } else if (!isLoading && !isSearching) {
-      // Only search for featured books if we are not already searching
-      // and there are no books currently displayed
-      if (displayedBooks.length === 0 && !noResults) {
-        performSearch('Featured Books');
-      }
+    // This effect handles the actual book searching logic
+    if (!settingsAreInitialized) {
+      return; // Wait for settings to be loaded from storage
     }
 
-  }, [searchParams, isLoading, settingsAreInitialized, displayedBooks.length, noResults]);
+    const performSearch = async (query: string) => {
+      if (!query) return;
+      
+      setIsSearching(true);
+      setNoResults(false);
+      setDisplayedBooks([]);
+  
+      const result = await getBooks(query);
+      
+      if (result.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Search Failed',
+          description: result.error,
+        });
+      }
+
+      if (result.books && result.books.length > 0) {
+        setDisplayedBooks(result.books);
+      } else {
+        setNoResults(true);
+      }
+      setIsSearching(false);
+    }
+    
+    const query = searchParams.get('q');
+
+    if (query !== null) { // A search query is in the URL
+        performSearch(query);
+    } else if (!isSearching) { // No query in URL, not currently searching
+        // Only search for "Featured Books" on initial load
+        if (displayedBooks.length === 0 && !noResults) {
+            performSearch('Featured Books');
+        }
+    }
+  }, [searchParams, settingsAreInitialized, toast]); // Removed dependencies that caused loops
 
   const handleSearch = (query: string) => {
     const params = new URLSearchParams(searchParams.toString());
