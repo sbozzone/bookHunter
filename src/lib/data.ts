@@ -114,17 +114,10 @@ export const sourceData: SourceData[] = [
   { name: 'Amazon New', formats: ['Audiobook', 'eBook', 'Print'], note: 'Also sells used books' },
   { name: 'Amazon Used', formats: ['Print'], note: 'Marketplace for used books' },
   { name: 'Audible', formats: ['Audiobook'], note: 'Amazon company' },
-  { name: 'Kobo Audiobooks', formats: ['Audiobook'], note: '' },
-  { name: 'All You Can Books', formats: ['Audiobook', 'eBook'], note: 'Subscription service' },
-  { name: 'LibriVox', formats: ['Audiobook'], note: 'Public domain audiobooks' },
-  { name: 'OverDrive', formats: ['Audiobook', 'eBook'], note: 'Library provider' },
   { name: 'Hoopla', formats: ['Audiobook', 'eBook'], note: 'Library provider' },
-  { name: 'YouTube', formats: ['Audiobook'], note: 'Unofficial uploads' },
   { name: 'Libby', formats: ['Audiobook', 'eBook'], note: 'App for OverDrive' },
-  { name: 'Digitalbook.io', formats: ['Audiobook', 'eBook'], note: 'LibriVox/Gutenberg mirror' },
+  { name: 'YouTube', formats: ['Audiobook'], note: 'Unofficial uploads' },
   { name: 'Google Audiobooks', formats: ['Audiobook', 'eBook'], note: 'Also sells eBooks' },
-  { name: 'Downpour', formats: ['Audiobook'], note: '' },
-  { name: 'Libro.fm', formats: ['Audiobook'], note: 'Supports local bookstores' },
   { name: 'PDF', formats: ['eBook', 'Print'], note: 'General PDF search' },
 ];
 

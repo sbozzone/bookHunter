@@ -129,6 +129,9 @@ For each book, provide valid search URLs for the following sources:
 - Libby
 - Hoopla
 - PDF
+- Audible
+- YouTube
+- Google Audiobooks
 {{/if}}
 
 Construct the URLs to be as accurate as possible for searching for the specific book title. Replace TITLE with the book's title.
@@ -138,15 +141,8 @@ Construct the URLs to be as accurate as possible for searching for the specific 
 - Hoopla: 'https://www.hoopladigital.com/search?q=TITLE'
 - PDF: 'https://www.google.com/search?q=TITLE+filetype%3Apdf'
 - Audible: 'https://www.audible.com/search?keywords=TITLE'
-- Kobo Audiobooks: 'https://www.kobo.com/us/en/search?query=TITLE&fc-media=Audiobook'
-- All You Can Books: 'https://www.allyoucanbooks.com/catalogsearch/result/?q=TITLE'
-- LibriVox: 'https://librivox.org/search?q=TITLE'
-- OverDrive: 'https://www.overdrive.com/search?q=TITLE'
 - YouTube: 'https://www.youtube.com/results?search_query=TITLE+audiobook'
-- Digitalbook.io: 'https://www.digitalbook.io/search?q=TITLE'
 - Google Audiobooks: 'https://play.google.com/store/search?q=TITLE&c=books&target=audiobooks'
-- Downpour: 'https://www.downpour.com/catalogsearch/result/?q=TITLE'
-- Libro.fm: 'https://libro.fm/audiobooks?q=TITLE'
 
 Ensure the information is accurate. If no books are found, return an empty list.`,
 });
@@ -162,3 +158,4 @@ const searchBooksFlow = ai.defineFlow(
     return output || { books: [] };
   }
 );
+

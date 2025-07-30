@@ -5,15 +5,8 @@ export type SourceName =
   | 'Amazon Used' 
   | 'Amazon New'
   | 'Audible'
-  | 'Kobo Audiobooks'
-  | 'All You Can Books'
-  | 'LibriVox'
-  | 'OverDrive'
   | 'YouTube'
-  | 'Digitalbook.io'
-  | 'Google Audiobooks'
-  | 'Downpour'
-  | 'Libro.fm';
+  | 'Google Audiobooks';
 
 export type Source = {
   name: SourceName;
