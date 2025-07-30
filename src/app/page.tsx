@@ -35,7 +35,7 @@ function SplashScreen() {
     <div className="h-screen w-screen flex flex-col items-center justify-center bg-background fixed inset-0 z-50">
       <div className="flex items-center gap-4">
         <BookMarked className="size-12 text-primary animate-pulse" />
-        <h1 className="text-4xl font-bold font-headline">The Budget Book Hunter</h1>
+        <h1 className="text-4xl font-bold font-headline">Bibliosleuth</h1>
       </div>
       <p className="mt-4 text-xl text-foreground">Find It. Read It, Save Big!</p>
       <p className="mt-2 text-muted-foreground">Scanning Libby, Hoopla, Amazon and more</p>
@@ -95,7 +95,7 @@ function SearchPage() {
     setSubmittedQuery(query);
     const timer = setTimeout(() => setIsLoading(false), 2000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [searchParams]);
   
   const performSearch = useCallback(async (query: string | null) => {
     if (query === null && hasPerformedInitialSearch.current) {
