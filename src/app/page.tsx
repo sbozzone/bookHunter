@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, Suspense, useCallback } from 'react';
+import { useState, useEffect, Suspense, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import AppLayout from '@/components/layout/app-layout';
 import Header from '@/components/layout/header';
@@ -86,63 +86,52 @@ function SearchPage() {
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [noResults, setNoResults] = useState(false);
+  const hasPerformedInitialSearch = useRef(false);
 
   const sourcesCount = preferredSources.length > 0 ? preferredSources.length : 5;
 
   useEffect(() => {
     const query = searchParams.get('q') || '';
     setSubmittedQuery(query);
-    // This effect handles the initial loading splash screen
-    if (!query) {
-      const timer = setTimeout(() => setIsLoading(false), 2000);
-      return () => clearTimeout(timer);
-    } else {
-      setIsLoading(false);
-    }
-  }, [searchParams]);
-
-  useEffect(() => {
-    // This effect handles the actual book searching logic
-    if (!settingsAreInitialized) {
-      return; // Wait for settings to be loaded from storage
-    }
-
-    const performSearch = async (query: string) => {
-      if (!query) return;
-      
-      setIsSearching(true);
-      setNoResults(false);
-      setDisplayedBooks([]);
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
   
-      const result = await getBooks(query);
+  useEffect(() => {
+    if (!settingsAreInitialized || isLoading) {
+      return; 
+    }
+
+    const performSearch = async () => {
+      const query = searchParams.get('q');
       
-      if (result.error) {
-        toast({
-          variant: 'destructive',
-          title: 'Search Failed',
-          description: result.error,
-        });
-      }
-
-      if (result.books && result.books.length > 0) {
-        setDisplayedBooks(result.books);
-      } else {
-        setNoResults(true);
-      }
-      setIsSearching(false);
-    }
-    
-    const query = searchParams.get('q');
-
-    if (query !== null) { // A search query is in the URL
-        performSearch(query);
-    } else if (!isSearching) { // No query in URL, not currently searching
-        // Only search for "Featured Books" on initial load
-        if (displayedBooks.length === 0 && !noResults) {
-            performSearch('Featured Books');
+      if (query === null && !hasPerformedInitialSearch.current) {
+        hasPerformedInitialSearch.current = true;
+        setIsSearching(true);
+        setNoResults(false);
+        const result = await getBooks('Featured Books');
+        if (result.error) {
+          toast({ variant: 'destructive', title: 'Search Failed', description: result.error });
         }
-    }
-  }, [searchParams, settingsAreInitialized, toast]); // Removed dependencies that caused loops
+        setDisplayedBooks(result.books || []);
+        setNoResults(!result.books || result.books.length === 0);
+        setIsSearching(false);
+      } else if (query !== null) {
+        setIsSearching(true);
+        setNoResults(false);
+        const result = await getBooks(query);
+        if (result.error) {
+          toast({ variant: 'destructive', title: 'Search Failed', description: result.error });
+        }
+        setDisplayedBooks(result.books || []);
+        setNoResults(!result.books || result.books.length === 0);
+        setIsSearching(false);
+      }
+    };
+    
+    performSearch();
+
+  }, [searchParams, settingsAreInitialized, isLoading, toast]);
 
   const handleSearch = (query: string) => {
     const params = new URLSearchParams(searchParams.toString());
