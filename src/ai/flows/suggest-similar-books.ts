@@ -32,12 +32,10 @@ export async function suggestSimilarBooks(
 const prompt = ai.definePrompt({
   name: 'suggestSimilarBooksPrompt',
   input: {schema: SuggestSimilarBooksInputSchema},
-  output: {schema: SuggestSimilarBooksOutputSchema},
-  prompt: `You are a helpful book recommendation assistant. A user is looking for books similar to "{{query}}". Suggest some titles or authors that they might enjoy. Return a list of titles or authors.  Here are some suggestions:
+  prompt: `You are a helpful book recommendation assistant. A user is looking for books similar to "{{query}}". Suggest some titles or authors that they might enjoy.
 
-  {{#each suggestions}}
-  - {{this}}
-  {{/each}}`,
+Respond with ONLY a valid JSON object (no markdown, no code fences, no explanation) matching this exact shape:
+{ "suggestions": ["title or author", "title or author"] }`,
 });
 
 const suggestSimilarBooksFlow = ai.defineFlow(
@@ -47,7 +45,8 @@ const suggestSimilarBooksFlow = ai.defineFlow(
     outputSchema: SuggestSimilarBooksOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    const {text} = await prompt(input);
+    const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+    return SuggestSimilarBooksOutputSchema.parse(JSON.parse(cleaned));
   }
 );

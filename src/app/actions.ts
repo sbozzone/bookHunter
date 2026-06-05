@@ -22,6 +22,7 @@ export async function getSuggestions(prevState: any, formData: FormData) {
       return {
         message: 'Invalid query.',
         suggestions: [],
+        error: null,
       };
     }
 

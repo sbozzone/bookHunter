@@ -12,7 +12,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { v4 as uuidv4 } from 'uuid';
-import type { BookFormat, SourceName } from '@/lib/types';
+import type { Book, BookFormat, SourceName } from '@/lib/types';
 import { availableSources } from '@/lib/data';
 
 const BookFormatEnum = z.enum(['Audiobook', 'eBook', 'Print']);
@@ -26,7 +26,7 @@ const SearchBooksInputSchema = z.object({
 export type SearchBooksInput = z.infer<typeof SearchBooksInputSchema>;
 
 const SourceSchema = z.object({
-    name: z.string().describe('The name of the source, e.g., "Amazon", "Libby".'),
+    name: z.enum(['Libby', 'Hoopla', 'PDF', 'Amazon', 'Audible', 'YouTube', 'Google Play'] as const).describe('The name of the source, e.g., "Amazon", "Libby".'),
     url: z.string().describe('The direct URL to the book on the source\'s website.'),
 });
 
@@ -78,7 +78,7 @@ async function getCoverUrl(book: z.infer<typeof BookSchema>): Promise<string> {
 
 export async function searchBooks(
   input: SearchBooksInput
-): Promise<SearchBooksOutput> {
+): Promise<{ books: Book[] }> {
   const booksFromFlow = await searchBooksFlow(input);
 
   if (!booksFromFlow || !booksFromFlow.books || booksFromFlow.books.length === 0) {
@@ -103,7 +103,6 @@ export async function searchBooks(
 const prompt = ai.definePrompt({
   name: 'searchBooksPrompt',
   input: {schema: SearchBooksInputSchema},
-  output: {schema: SearchBooksOutputSchema},
   prompt: `You are a book expert acting as a search engine. Find up to 6 books matching the query "{{query}}".
 {{#if genres}}
 Prioritize books from the following genres: {{#each genres}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}.
@@ -142,7 +141,21 @@ Construct the URLs to be as accurate as possible for searching for the specific 
 - YouTube: 'https://www.youtube.com/results?search_query=TITLE+audiobook'
 - Google Play: 'https://play.google.com/store/search?q=TITLE&c=books'
 
-Ensure the information is accurate. If no books are found, return an empty list.`,
+Ensure the information is accurate. If no books are found, return an empty list.
+
+Respond with ONLY a valid JSON object (no markdown, no code fences, no explanation) matching this exact shape:
+{
+  "books": [
+    {
+      "title": "string",
+      "author": "string",
+      "description": "string",
+      "isbn": "string (optional, ISBN-13)",
+      "formats": ["Audiobook" | "eBook" | "Print"],
+      "sources": [{ "name": "Libby" | "Hoopla" | "PDF" | "Amazon" | "Audible" | "YouTube" | "Google Play", "url": "string" }]
+    }
+  ]
+}`,
 });
 
 const searchBooksFlow = ai.defineFlow(
@@ -152,7 +165,27 @@ const searchBooksFlow = ai.defineFlow(
     outputSchema: SearchBooksOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output || { books: [] };
+    let lastError: Error | null = null;
+    const maxRetries = 3;
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        const {text} = await prompt(input);
+        const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+        const parsed = JSON.parse(cleaned);
+        return SearchBooksOutputSchema.parse(parsed);
+      } catch (error) {
+        lastError = error as Error;
+        if (error instanceof Error && error.message.includes('429')) {
+          const waitTime = Math.pow(2, attempt) * 1000;
+          console.log(`Rate limited. Retrying in ${waitTime}ms (attempt ${attempt + 1}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    throw lastError || new Error('Failed to fetch books after retries');
   }
 );

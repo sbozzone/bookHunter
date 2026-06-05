@@ -10,8 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Sparkles, LoaderCircle } from 'lucide-react';
 
 const initialState = {
-  message: null,
-  suggestions: [],
+  message: null as string | null,
+  suggestions: [] as string[],
+  error: null as string | null,
 };
 
 function SubmitButton() {
