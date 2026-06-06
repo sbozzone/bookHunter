@@ -39,10 +39,10 @@ export default function Header({ onSearch, initialQuery = '', isSearching = fals
             className="pl-10"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            disabled={isSearching}
+            autoFocus
           />
         </div>
-        <Button type="submit" disabled={isSearching} className={isSearching ? 'opacity-70' : ''}>
+        <Button type="submit" disabled={isSearching || !query.trim()} className={isSearching ? 'opacity-70' : ''}>
           {isSearching && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
           {isSearching ? 'Searching...' : 'Search'}
         </Button>
