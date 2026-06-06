@@ -42,15 +42,9 @@ export default function Header({ onSearch, initialQuery = '', isSearching = fals
             disabled={isSearching}
           />
         </div>
-        <Button type="submit" disabled={isSearching}>
-          {isSearching ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Searching...
-            </>
-          ) : (
-            'Search'
-          )}
+        <Button type="submit" disabled={isSearching} className={isSearching ? 'opacity-70' : ''}>
+          {isSearching && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+          {isSearching ? 'Searching...' : 'Search'}
         </Button>
       </form>
     </header>
