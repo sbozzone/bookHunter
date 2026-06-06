@@ -14,35 +14,53 @@ import { Progress } from '@/components/ui/progress';
 import { useSettings } from '@/components/settings-provider';
 import { useToast } from '@/hooks/use-toast';
 
-function SplashScreen() {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prev + 1;
-      });
-    }, 20); // Update progress every 20ms to reach 100 in 2s
-
-    return () => clearInterval(interval);
-  }, []);
-
+function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
   return (
-    <div className="h-screen w-screen flex flex-col items-center justify-center bg-background fixed inset-0 z-50">
-      <div className="flex items-center gap-4">
-        <BookMarked className="size-12 text-primary animate-pulse" />
-        <h1 className="text-4xl font-bold font-headline">BudgetBookHunter
+    <div
+      className="h-screen w-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 fixed inset-0 z-50 cursor-pointer"
+      onClick={onDismiss}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          onDismiss();
+        }
+      }}
+    >
+      <div className="flex flex-col items-center justify-center h-full px-4">
+        <div className="flex items-center gap-4 mb-8">
+          <BookMarked className="size-16 text-green-600 animate-pulse" />
+          <h1 className="text-5xl font-bold font-headline text-gray-800 dark:text-white">
+            BudgetBookHunter
+          </h1>
+        </div>
 
-          
-        </h1>
+        <p className="text-2xl font-semibold text-gray-800 dark:text-white mb-2">
+          Find It. Read It, Save Big!
+        </p>
+        <p className="text-lg text-gray-600 dark:text-gray-300 mb-12">
+          Scanning Libby, Hoopla, Amazon and more!
+        </p>
+
+        <div className="flex gap-12 mb-16 max-w-sm">
+          <div className="flex flex-col items-center">
+            <div className="text-4xl mb-2">🏷️</div>
+            <p className="text-sm text-gray-700 dark:text-gray-400 text-center">Find the Best Book Deals</p>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="text-4xl mb-2">🔍</div>
+            <p className="text-sm text-gray-700 dark:text-gray-400 text-center">Search Multiple Sources</p>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="text-4xl mb-2">💰</div>
+            <p className="text-sm text-gray-700 dark:text-gray-400 text-center">Save More, Read More</p>
+          </div>
+        </div>
+
+        <p className="text-gray-500 dark:text-gray-400 text-center">
+          Tap anywhere to continue
+        </p>
       </div>
-      <p className="mt-4 text-xl text-foreground">Find It. Read It, Save Big!</p>
-      <p className="mt-2 text-muted-foreground">Scanning Libby, Hoopla, Amazon and more!</p>
-      <Progress value={progress} className="w-1/4 mt-8" />
     </div>
   );
 }
@@ -97,8 +115,6 @@ function SearchPage() {
   useEffect(() => {
     const query = searchParams.get('q') || '';
     setSubmittedQuery(query);
-    const timer = setTimeout(() => setIsLoading(false), 2000);
-    return () => clearTimeout(timer);
   }, [searchParams]);
 
   const performSearch = useCallback(async (query: string | null) => {
@@ -151,7 +167,7 @@ function SearchPage() {
   };
 
   if (isLoading) {
-    return <SplashScreen />;
+    return <SplashScreen onDismiss={() => setIsLoading(false)} />;
   }
 
   return (
