@@ -7,12 +7,22 @@ import AppLayout from '@/components/layout/app-layout';
 import Header from '@/components/layout/header';
 import BookResults from '@/components/book-results';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 import type { Book } from '@/lib/types';
 import { getBooks } from '@/app/actions';
+import { BookMarked } from 'lucide-react';
 import { useSettings } from '@/components/settings-provider';
 import { useToast } from '@/hooks/use-toast';
 
+const SPLASH_SEEN_KEY = 'budget-book-hunter-splash-seen';
+
 function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
+  // Auto-dismiss so the splash never blocks the app for more than a moment.
+  useEffect(() => {
+    const timer = setTimeout(onDismiss, 1500);
+    return () => clearTimeout(timer);
+  }, [onDismiss]);
+
   return (
     <div
       className="h-screen w-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900 fixed inset-0 z-50 cursor-pointer overflow-hidden"
@@ -39,30 +49,30 @@ function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
-function BookSearchSkeleton({ numSources }: { numSources: number }) {
+function BookSearchSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
       {[...Array(6)].map((_, i) => (
-        <div key={i} className="flex flex-col space-y-3">
-          <div className="flex flex-row items-start gap-4 p-4">
-             <Skeleton className="h-[150px] w-[100px] rounded-md" />
+        <div key={i} className="flex flex-col space-y-3 rounded-lg border p-4">
+          <div className="flex flex-row items-start gap-4">
+             <Skeleton className="h-[135px] w-[90px] rounded-md" />
              <div className="flex-1 space-y-2">
                 <Skeleton className="h-6 w-3/4" />
                 <Skeleton className="h-4 w-1/2" />
-                <div className="flex gap-2 pt-2">
-                  <Skeleton className="h-6 w-20" />
-                  <Skeleton className="h-6 w-20" />
+                <div className="flex gap-1.5 pt-1">
+                  <Skeleton className="h-5 w-16" />
+                  <Skeleton className="h-5 w-16" />
                 </div>
+                <Skeleton className="h-3 w-full mt-2" />
+                <Skeleton className="h-3 w-5/6" />
              </div>
           </div>
-          <div className="space-y-2 px-4">
-            {[...Array(numSources)].map((_, j) => (
-                <Skeleton key={j} className="h-8 w-full" />
+          <div className="flex flex-wrap gap-2">
+            {[...Array(4)].map((_, j) => (
+                <Skeleton key={j} className="h-7 w-20" />
             ))}
           </div>
-           <div className="p-4 pt-0 mt-auto">
-             <Skeleton className="h-10 w-full" />
-           </div>
+          <Skeleton className="h-10 w-full mt-auto" />
         </div>
       ))}
     </div>
@@ -80,19 +90,31 @@ function SearchPage() {
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [noResults, setNoResults] = useState(false);
   const hasPerformedInitialSearch = useRef(false);
 
-  const sourcesCount = preferredSources.length > 0 ? preferredSources.length : 5;
-
+  // Skip the splash entirely once it has been seen, or when arriving via a search.
   useEffect(() => {
     const query = searchParams.get('q') || '';
     setSubmittedQuery(query);
-    // Don't show splash screen if user is doing a new search
-    if (query) {
+    let alreadySeen = false;
+    try {
+      alreadySeen = window.localStorage.getItem(SPLASH_SEEN_KEY) === 'true';
+    } catch {
+      /* ignore storage errors */
+    }
+    if (query || alreadySeen) {
       setIsLoading(false);
     }
   }, [searchParams]);
+
+  const dismissSplash = useCallback(() => {
+    try {
+      window.localStorage.setItem(SPLASH_SEEN_KEY, 'true');
+    } catch {
+      /* ignore storage errors */
+    }
+    setIsLoading(false);
+  }, []);
 
   const performSearch = useCallback(async (query: string | null) => {
     if (query === null && hasPerformedInitialSearch.current) {
@@ -100,7 +122,6 @@ function SearchPage() {
     }
 
     setIsSearching(true);
-    setNoResults(false);
 
     const searchQuery = query === null ? 'Featured Books' : query;
 
@@ -111,7 +132,6 @@ function SearchPage() {
         toast({ variant: 'destructive', title: 'Search Failed', description: result.error });
       }
       setDisplayedBooks(result.books || []);
-      setNoResults(!result.books || result.books.length === 0);
     } finally {
       setIsSearching(false);
     }
@@ -142,29 +162,57 @@ function SearchPage() {
   };
 
   if (isLoading) {
-    return <SplashScreen onDismiss={() => setIsLoading(false)} />;
+    return <SplashScreen onDismiss={dismissSplash} />;
   }
 
   return (
     <AppLayout>
       <Header onSearch={handleSearch} initialQuery={submittedQuery} isSearching={isSearching} />
       <main className="p-4 md:p-8">
-        <h2 className="text-3xl font-bold tracking-tight mb-6 font-headline">
-          {submittedQuery
-            ? `Search Results for "${submittedQuery}"`
-            : 'Featured Books'}
-        </h2>
+        <div className="mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h2 className="text-3xl font-bold tracking-tight font-headline">
+            {submittedQuery ? `Results for "${submittedQuery}"` : 'Featured Books'}
+          </h2>
+          {!isSearching && displayedBooks.length > 0 && (
+            <span className="text-sm text-muted-foreground">
+              {displayedBooks.length} {displayedBooks.length === 1 ? 'book' : 'books'}
+            </span>
+          )}
+        </div>
         {isSearching ? (
-          <BookSearchSkeleton numSources={sourcesCount} />
+          <BookSearchSkeleton />
         ) : displayedBooks.length > 0 ? (
           <BookResults books={displayedBooks} />
         ) : (
-          <p className="text-center text-muted-foreground">
-            No books found. Try a different search.
-          </p>
+          <EmptyState query={submittedQuery} onSearch={handleSearch} />
         )}
       </main>
     </AppLayout>
+  );
+}
+
+const EXAMPLE_SEARCHES = ['Dune', 'Project Hail Mary', 'Pride and Prejudice', 'Stephen King', 'The Hobbit'];
+
+function EmptyState({ query, onSearch }: { query: string; onSearch: (q: string) => void }) {
+  return (
+    <div className="mx-auto max-w-md py-16 text-center">
+      <BookMarked className="mx-auto h-12 w-12 text-muted-foreground/40" />
+      <h3 className="mt-4 text-lg font-semibold">
+        {query ? `No books found for "${query}"` : 'Start your search'}
+      </h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {query
+          ? 'Try a different title or author — or one of these:'
+          : 'Search by title or author. Try one of these to get started:'}
+      </p>
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+        {EXAMPLE_SEARCHES.map((example) => (
+          <Button key={example} variant="outline" size="sm" onClick={() => onSearch(example)}>
+            {example}
+          </Button>
+        ))}
+      </div>
+    </div>
   );
 }
 

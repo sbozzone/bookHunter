@@ -10,17 +10,10 @@ import { ThemeSelector } from '@/components/theme-selector';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { Check } from 'lucide-react';
 import { availableGenres, availableFormats, sourceData, availableSources } from '@/lib/data';
 import { Separator } from '@/components/ui/separator';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import type { BookFormat } from '@/lib/types';
 
 
 function SettingsContent() {
@@ -44,25 +37,6 @@ function SettingsContent() {
 
   const allFormatsSelected = preferredFormats.length === availableFormats.length;
   const someFormatsSelected = preferredFormats.length > 0 && !allFormatsSelected;
-
-  const allFormatHeaders: {format: BookFormat, icon: string}[] = [
-    { format: 'Audiobook', icon: '🎧' },
-    { format: 'eBook', icon: '📱' },
-    { format: 'Print', icon: '📖' },
-  ];
-
-  const formatHeaders = allFormatHeaders.filter(header => 
-    preferredFormats.length === 0 || preferredFormats.includes(header.format)
-  );
-
-  const filteredSourceData = sourceData.filter(source => {
-    if (preferredFormats.length === 0) {
-      return true; // Show all sources if no formats are selected
-    }
-    // Show source if it supports at least one of the selected formats
-    return preferredFormats.some(format => source.formats.includes(format));
-  });
-
 
   return (
     <div className="space-y-8">
@@ -161,9 +135,9 @@ function SettingsContent() {
       <Card>
         <CardHeader>
             <CardTitle>Search Sources</CardTitle>
-            <CardDescription>Select which sources you want to search for books on. The table below will update based on your Preferred Formats.</CardDescription>
+            <CardDescription>Choose which sources appear as &ldquo;Where to find it&rdquo; links on each book.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
             <div className="flex items-center space-x-2">
                 <Checkbox
                     id="select-all-sources"
@@ -178,44 +152,25 @@ function SettingsContent() {
                     Select All
                 </label>
             </div>
-            <Separator className="my-4" />
-            <div className="border rounded-lg">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[200px]">Source</TableHead>
-                    {formatHeaders.map(({format, icon}) => (
-                        <TableHead key={format} className="text-center">{`${format} ${icon}`}</TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredSourceData.map((source) => (
-                    <TableRow key={source.name}>
-                      <TableCell>
-                         <div className="flex items-center space-x-3">
-                            <Checkbox
-                                id={`source-${source.name}`}
-                                checked={preferredSources.includes(source.name)}
-                                onCheckedChange={() => toggleSource(source.name)}
-                            />
-                            <label
-                                htmlFor={`source-${source.name}`}
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                            >
-                                {source.name}
-                            </label>
-                        </div>
-                      </TableCell>
-                      {formatHeaders.map(({format}) => (
-                         <TableCell key={`${source.name}-${format}`} className="text-center">
-                            {source.formats.includes(format) ? '✅' : '❌'}
-                         </TableCell>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <Separator />
+            <div className="flex flex-wrap gap-2">
+              {sourceData.map((source) => {
+                const selected = preferredSources.includes(source.name);
+                return (
+                  <Button
+                    key={source.name}
+                    type="button"
+                    variant={selected ? 'default' : 'outline'}
+                    size="sm"
+                    className="gap-1.5"
+                    onClick={() => toggleSource(source.name)}
+                    title={source.note}
+                  >
+                    {selected && <Check className="h-3.5 w-3.5" />}
+                    {source.name}
+                  </Button>
+                );
+              })}
             </div>
         </CardContent>
       </Card>
