@@ -15,6 +15,9 @@ import { v4 as uuidv4 } from 'uuid';
 import type { Book, BookFormat, SourceName } from '@/lib/types';
 import { availableSources } from '@/lib/data';
 
+const coverUrlCache = new Map<string, string>();
+const COVER_FETCH_TIMEOUT = 2000;
+
 const BookFormatEnum = z.enum(['Audiobook', 'eBook', 'Print']);
 
 const SearchBooksInputSchema = z.object({
@@ -44,6 +47,13 @@ const SearchBooksOutputSchema = z.object({
 });
 export type SearchBooksOutput = z.infer<typeof SearchBooksOutputSchema>;
 
+function fetchWithTimeout(url: string, timeout: number = COVER_FETCH_TIMEOUT): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timeoutId));
+}
+
 async function getCoverUrl(book: z.infer<typeof BookSchema>): Promise<string> {
   const svgPlaceholder = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
     <rect fill="#e0e0e0" width="300" height="450"></rect>
@@ -51,27 +61,44 @@ async function getCoverUrl(book: z.infer<typeof BookSchema>): Promise<string> {
   </svg>`;
   const fallbackUrl = `data:image/svg+xml;base64,${Buffer.from(svgPlaceholder).toString('base64')}`;
 
-  if (book.isbn) {
-    const response = await fetch(`https://covers.openlibrary.org/b/isbn/${book.isbn}-L.jpg?default=false`);
-    if (response.ok && response.url) {
-      if (!response.url.includes('olid-all-0.png')) {
-        return response.url;
-      }
-    }
+  const cacheKey = book.isbn || `${book.title}:${book.author}`;
+  if (coverUrlCache.has(cacheKey)) {
+    return coverUrlCache.get(cacheKey)!;
   }
 
   try {
-    const query = encodeURIComponent(`${book.title} ${book.author}`);
-    const response = await fetch(`https://openlibrary.org/search.json?q=${query}`);
-    const data = await response.json();
-    const coverId = data.docs?.[0]?.cover_i;
-    if (coverId) {
-      return `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
+    const results = await Promise.allSettled([
+      (async () => {
+        if (!book.isbn) throw new Error('No ISBN');
+        const response = await fetchWithTimeout(`https://covers.openlibrary.org/b/isbn/${book.isbn}-L.jpg?default=false`);
+        if (response.ok && response.url && !response.url.includes('olid-all-0.png')) {
+          return response.url;
+        }
+        throw new Error('Invalid ISBN response');
+      })(),
+      (async () => {
+        const query = encodeURIComponent(`${book.title} ${book.author}`);
+        const response = await fetchWithTimeout(`https://openlibrary.org/search.json?q=${query}`);
+        const data = await response.json();
+        const coverId = data.docs?.[0]?.cover_i;
+        if (coverId) {
+          return `https://covers.openlibrary.org/b/id/${coverId}-L.jpg`;
+        }
+        throw new Error('No cover found in search results');
+      })(),
+    ]);
+
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value) {
+        coverUrlCache.set(cacheKey, result.value);
+        return result.value;
+      }
     }
   } catch (error) {
-    console.error('Error fetching cover from OpenLibrary search:', error);
+    console.debug('Error fetching cover:', error instanceof Error ? error.message : 'Unknown error');
   }
-  
+
+  coverUrlCache.set(cacheKey, fallbackUrl);
   return fallbackUrl;
 }
 
