@@ -6,7 +6,7 @@ import { searchBooks } from '@/ai/flows/search-books';
 import { z } from 'zod';
 import type { BookFormat, SourceName } from '@/lib/types';
 import { cookies } from 'next/headers';
-import { availableSources } from '@/lib/data';
+import { availableSources, mockBooks } from '@/lib/data';
 
 const SuggestionSchema = z.object({
   query: z.string().min(2, { message: 'Query must be at least 2 characters.' }),
@@ -74,6 +74,10 @@ export async function getBooks({ query, preferredGenres, preferredFormats, prefe
 
       if (validatedFields.data.query.trim() === '') {
         return { books: [] };
+      }
+
+      if (validatedFields.data.query === 'Featured Books') {
+        return { books: mockBooks, error: null };
       }
 
       const result = await searchBooks(validatedFields.data);
