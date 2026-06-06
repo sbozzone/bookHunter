@@ -100,40 +100,29 @@ function SearchPage() {
     const timer = setTimeout(() => setIsLoading(false), 2000);
     return () => clearTimeout(timer);
   }, [searchParams]);
-  
+
   const performSearch = useCallback(async (query: string | null) => {
     if (query === null && hasPerformedInitialSearch.current) {
         return;
     }
 
     setIsSearching(true);
-    setSearchProgress('Starting search...');
+    setSearchProgress(query === null ? 'Loading featured books...' : 'Searching for books...');
     setNoResults(false);
 
     const searchQuery = query === null ? 'Featured Books' : query;
-    console.log('performSearch called with:', { query, searchQuery });
 
     try {
-      setSearchProgress(searchQuery === 'Featured Books' ? 'Loading featured books...' : 'Searching for books...');
       const result = await getBooks({ query: searchQuery, preferredGenres, preferredFormats, preferredSources });
-
-      console.log('getBooks result:', {
-        booksCount: result.books?.length || 0,
-        error: result.error,
-        hasBooks: !!result.books && result.books.length > 0
-      });
 
       if (result.error) {
         toast({ variant: 'destructive', title: 'Search Failed', description: result.error });
       }
       setDisplayedBooks(result.books || []);
       setNoResults(!result.books || result.books.length === 0);
-      setSearchProgress('');
-    } catch (error) {
-      console.error('performSearch error:', error);
-      setSearchProgress('');
     } finally {
       setIsSearching(false);
+      setSearchProgress('');
     }
 
     if (query === null) {
@@ -143,9 +132,9 @@ function SearchPage() {
 
   useEffect(() => {
     if (!settingsAreInitialized || isLoading) {
-      return; 
+      return;
     }
-    
+
     const query = searchParams.get('q');
     performSearch(query);
 
