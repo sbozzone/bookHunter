@@ -9,8 +9,6 @@ import BookResults from '@/components/book-results';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Book } from '@/lib/types';
 import { getBooks } from '@/app/actions';
-import { BookMarked } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
 import { useSettings } from '@/components/settings-provider';
 import { useToast } from '@/hooks/use-toast';
 
@@ -83,7 +81,6 @@ function SearchPage() {
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [noResults, setNoResults] = useState(false);
-  const [searchProgress, setSearchProgress] = useState('');
   const hasPerformedInitialSearch = useRef(false);
 
   const sourcesCount = preferredSources.length > 0 ? preferredSources.length : 5;
@@ -103,7 +100,6 @@ function SearchPage() {
     }
 
     setIsSearching(true);
-    setSearchProgress(query === null ? 'Loading featured books...' : 'Searching for books...');
     setNoResults(false);
 
     const searchQuery = query === null ? 'Featured Books' : query;
@@ -118,7 +114,6 @@ function SearchPage() {
       setNoResults(!result.books || result.books.length === 0);
     } finally {
       setIsSearching(false);
-      setSearchProgress('');
     }
 
     if (query === null) {
@@ -153,14 +148,6 @@ function SearchPage() {
   return (
     <AppLayout>
       <Header onSearch={handleSearch} initialQuery={submittedQuery} isSearching={isSearching} />
-      {isSearching && searchProgress && (
-        <div className="bg-blue-50 dark:bg-blue-950 border-b border-blue-200 dark:border-blue-800 px-4 md:px-8 py-3">
-          <p className="text-sm text-blue-700 dark:text-blue-200 flex items-center gap-2">
-            <span className="inline-block h-2 w-2 bg-blue-500 rounded-full animate-pulse"></span>
-            {searchProgress}
-          </p>
-        </div>
-      )}
       <main className="p-4 md:p-8">
         <h2 className="text-3xl font-bold tracking-tight mb-6 font-headline">
           {submittedQuery
