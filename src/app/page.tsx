@@ -89,6 +89,7 @@ function SearchPage() {
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [noResults, setNoResults] = useState(false);
+  const [searchProgress, setSearchProgress] = useState('');
   const hasPerformedInitialSearch = useRef(false);
 
   const sourcesCount = preferredSources.length > 0 ? preferredSources.length : 5;
@@ -106,18 +107,27 @@ function SearchPage() {
     }
 
     setIsSearching(true);
+    setSearchProgress('Starting search...');
     setNoResults(false);
-    
-    const searchQuery = query === null ? 'Featured Books' : query;
-    const result = await getBooks({ query: searchQuery, preferredGenres, preferredFormats, preferredSources });
 
-    if (result.error) {
-      toast({ variant: 'destructive', title: 'Search Failed', description: result.error });
+    const searchQuery = query === null ? 'Featured Books' : query;
+
+    try {
+      setSearchProgress(searchQuery === 'Featured Books' ? 'Loading featured books...' : 'Searching for books...');
+      const result = await getBooks({ query: searchQuery, preferredGenres, preferredFormats, preferredSources });
+
+      if (result.error) {
+        toast({ variant: 'destructive', title: 'Search Failed', description: result.error });
+      } else {
+        setSearchProgress('');
+      }
+      setDisplayedBooks(result.books || []);
+      setNoResults(!result.books || result.books.length === 0);
+    } finally {
+      setIsSearching(false);
+      setSearchProgress('');
     }
-    setDisplayedBooks(result.books || []);
-    setNoResults(!result.books || result.books.length === 0);
-    setIsSearching(false);
-    
+
     if (query === null) {
       hasPerformedInitialSearch.current = true;
     }
@@ -149,7 +159,15 @@ function SearchPage() {
 
   return (
     <AppLayout>
-      <Header onSearch={handleSearch} initialQuery={submittedQuery} />
+      <Header onSearch={handleSearch} initialQuery={submittedQuery} isSearching={isSearching} />
+      {isSearching && searchProgress && (
+        <div className="bg-blue-50 dark:bg-blue-950 border-b border-blue-200 dark:border-blue-800 px-4 md:px-8 py-3">
+          <p className="text-sm text-blue-700 dark:text-blue-200 flex items-center gap-2">
+            <span className="inline-block h-2 w-2 bg-blue-500 rounded-full animate-pulse"></span>
+            {searchProgress}
+          </p>
+        </div>
+      )}
       <main className="p-4 md:p-8">
         <h2 className="text-3xl font-bold tracking-tight mb-6 font-headline">
           {submittedQuery

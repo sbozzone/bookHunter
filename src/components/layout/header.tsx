@@ -3,15 +3,16 @@
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { SidebarTrigger } from '../ui/sidebar';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
   initialQuery?: string;
+  isSearching?: boolean;
 }
 
-export default function Header({ onSearch, initialQuery = '' }: HeaderProps) {
+export default function Header({ onSearch, initialQuery = '', isSearching = false }: HeaderProps) {
   const [query, setQuery] = useState(initialQuery);
 
   useEffect(() => {
@@ -38,9 +39,19 @@ export default function Header({ onSearch, initialQuery = '' }: HeaderProps) {
             className="pl-10"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            disabled={isSearching}
           />
         </div>
-        <Button type="submit">Search</Button>
+        <Button type="submit" disabled={isSearching}>
+          {isSearching ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Searching...
+            </>
+          ) : (
+            'Search'
+          )}
+        </Button>
       </form>
     </header>
   );
