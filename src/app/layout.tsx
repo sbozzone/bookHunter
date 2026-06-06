@@ -23,7 +23,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased" suppressHydrationWarning>
         <ThemeProvider
-          defaultColorTheme="default"
+          defaultColorTheme="green"
           storageKey="budget-book-hunter-color-theme"
         >
           <SettingsProvider>
