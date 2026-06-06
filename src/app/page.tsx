@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
   return (
     <div
-      className="h-screen w-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-50 to-blue-50 dark:from-slate-900 dark:to-slate-800 fixed inset-0 z-50 cursor-pointer"
+      className="h-screen w-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900 fixed inset-0 z-50 cursor-pointer overflow-hidden"
       onClick={onDismiss}
       role="button"
       tabIndex={0}
@@ -27,37 +27,13 @@ function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
         }
       }}
     >
-      <div className="flex flex-col items-center justify-center h-full px-4">
-        <div className="flex items-center gap-4 mb-8">
-          <BookMarked className="size-16 text-green-600 animate-pulse" />
-          <h1 className="text-5xl font-bold font-headline text-gray-800 dark:text-white">
-            BudgetBookHunter
-          </h1>
-        </div>
-
-        <p className="text-2xl font-semibold text-gray-800 dark:text-white mb-2">
-          Find It. Read It, Save Big!
-        </p>
-        <p className="text-lg text-gray-600 dark:text-gray-300 mb-12">
-          Scanning Libby, Hoopla, Amazon and more!
-        </p>
-
-        <div className="flex gap-12 mb-16 max-w-sm">
-          <div className="flex flex-col items-center">
-            <div className="text-4xl mb-2">🏷️</div>
-            <p className="text-sm text-gray-700 dark:text-gray-400 text-center">Find the Best Book Deals</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="text-4xl mb-2">🔍</div>
-            <p className="text-sm text-gray-700 dark:text-gray-400 text-center">Search Multiple Sources</p>
-          </div>
-          <div className="flex flex-col items-center">
-            <div className="text-4xl mb-2">💰</div>
-            <p className="text-sm text-gray-700 dark:text-gray-400 text-center">Save More, Read More</p>
-          </div>
-        </div>
-
-        <p className="text-gray-500 dark:text-gray-400 text-center">
+      <img
+        src="/splash.png"
+        alt="BudgetBookHunter"
+        className="w-full h-full object-cover"
+      />
+      <div className="absolute bottom-8 left-0 right-0 flex justify-center">
+        <p className="text-gray-600 dark:text-gray-400 text-sm bg-white dark:bg-slate-900 px-4 py-2 rounded-full">
           Tap anywhere to continue
         </p>
       </div>
