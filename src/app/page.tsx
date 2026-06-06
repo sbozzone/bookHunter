@@ -91,6 +91,10 @@ function SearchPage() {
   useEffect(() => {
     const query = searchParams.get('q') || '';
     setSubmittedQuery(query);
+    // Don't show splash screen if user is doing a new search
+    if (query) {
+      setIsLoading(false);
+    }
   }, [searchParams]);
 
   const performSearch = useCallback(async (query: string | null) => {
