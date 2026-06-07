@@ -84,12 +84,18 @@ export async function getBooks({
       return { books: [], error: null };
     }
 
-    // Featured books load: curated default query through the same fast pipeline,
-    // falling back to the static list if the API is unavailable.
+    // Featured books load: reflect the user's preferred genres when they have
+    // any, otherwise fall back to a curated default. Same fast pipeline, with
+    // the static list as a last resort if the API is unavailable.
     if (data.query === 'Featured Books') {
       try {
-        const featured = await searchBooks('classic literature bestsellers', {
-          sources: preferredSources as SourceName[] | undefined,
+        const genres = data.genres ?? [];
+        const featuredQuery = genres.length
+          ? `${genres.slice(0, 3).join(' ')} best books`
+          : 'classic literature bestsellers';
+        const featured = await searchBooks(featuredQuery, {
+          formats: data.formats as BookFormat[] | undefined,
+          sources: data.sources as SourceName[] | undefined,
           maxResults: 6,
         });
         return { books: featured.length ? featured : mockBooks, error: null };
