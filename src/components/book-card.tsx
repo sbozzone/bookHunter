@@ -50,7 +50,8 @@ function toPlainText(html: string): string {
 }
 
 export default function BookCard({ book, priority = false }: { book: Book; priority?: boolean }) {
-  const [showDetails, setShowDetails] = useState(false);
+  // Description is shown by default; users can collapse it with the toggle.
+  const [showDetails, setShowDetails] = useState(true);
   const badges = book.formats.filter((f): f is 'eBook' | 'Print' => f in verifiableFormatIcons);
   const hasDescription = Boolean(book.description) && book.description !== 'No description available.';
 

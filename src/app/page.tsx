@@ -14,15 +14,15 @@ import { BookMarked } from 'lucide-react';
 import { useSettings } from '@/components/settings-provider';
 import { useToast } from '@/hooks/use-toast';
 
-const SPLASH_SEEN_KEY = 'budget-book-hunter-splash-seen';
+const SPLASH_HIDE_KEY = 'budget-book-hunter-hide-splash';
 
-function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
-  // Auto-dismiss so the splash never blocks the app for more than a moment.
-  useEffect(() => {
-    const timer = setTimeout(onDismiss, 1500);
-    return () => clearTimeout(timer);
-  }, [onDismiss]);
-
+function SplashScreen({
+  onDismiss,
+  onDontShowAgain,
+}: {
+  onDismiss: () => void;
+  onDontShowAgain: () => void;
+}) {
   return (
     <div
       className="h-screen w-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900 fixed inset-0 z-50 cursor-pointer overflow-hidden"
@@ -40,10 +40,20 @@ function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
         alt="BudgetBookHunter"
         className="w-full h-full object-cover"
       />
-      <div className="absolute bottom-8 left-0 right-0 flex justify-center">
+      <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-3">
         <p className="text-gray-600 dark:text-gray-400 text-sm bg-white dark:bg-slate-900 px-4 py-2 rounded-full">
           Tap anywhere to continue
         </p>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDontShowAgain();
+          }}
+          className="text-xs text-gray-500 dark:text-gray-400 underline underline-offset-2 hover:text-gray-700 dark:hover:text-gray-200"
+        >
+          Don&apos;t show this again
+        </button>
       </div>
     </div>
   );
@@ -92,24 +102,31 @@ function SearchPage() {
   const [isSearching, setIsSearching] = useState(false);
   const hasPerformedInitialSearch = useRef(false);
 
-  // Skip the splash entirely once it has been seen, or when arriving via a search.
+  // Show the splash on every visit, unless the user opted out ("Don't show
+  // again") or arrived directly via a search.
   useEffect(() => {
     const query = searchParams.get('q') || '';
     setSubmittedQuery(query);
-    let alreadySeen = false;
+    let hidden = false;
     try {
-      alreadySeen = window.localStorage.getItem(SPLASH_SEEN_KEY) === 'true';
+      hidden = window.localStorage.getItem(SPLASH_HIDE_KEY) === 'true';
     } catch {
       /* ignore storage errors */
     }
-    if (query || alreadySeen) {
+    if (query || hidden) {
       setIsLoading(false);
     }
   }, [searchParams]);
 
+  // Tap to dismiss for this visit only (splash returns next time).
   const dismissSplash = useCallback(() => {
+    setIsLoading(false);
+  }, []);
+
+  // Permanently suppress the splash on future visits.
+  const hideSplashForever = useCallback(() => {
     try {
-      window.localStorage.setItem(SPLASH_SEEN_KEY, 'true');
+      window.localStorage.setItem(SPLASH_HIDE_KEY, 'true');
     } catch {
       /* ignore storage errors */
     }
@@ -162,7 +179,7 @@ function SearchPage() {
   };
 
   if (isLoading) {
-    return <SplashScreen onDismiss={dismissSplash} />;
+    return <SplashScreen onDismiss={dismissSplash} onDontShowAgain={hideSplashForever} />;
   }
 
   return (
