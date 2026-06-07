@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Image from 'next/image';
 import {
   Card,
@@ -9,7 +12,7 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Book, BookFormat, Source } from '@/lib/types';
-import { BookOpen, Book as BookIcon, ExternalLink } from 'lucide-react';
+import { BookOpen, Book as BookIcon, ExternalLink, Plus, Minus } from 'lucide-react';
 import { AddToWatchlistButton } from './add-to-watchlist-button';
 import { Button } from './ui/button';
 
@@ -30,8 +33,26 @@ const SourceChip = ({ source }: { source: Source }) => (
   </Button>
 );
 
+// Google Books descriptions may contain light HTML; render them as clean text.
+function toPlainText(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 export default function BookCard({ book, priority = false }: { book: Book; priority?: boolean }) {
+  const [showDetails, setShowDetails] = useState(false);
   const badges = book.formats.filter((f): f is 'eBook' | 'Print' => f in verifiableFormatIcons);
+  const hasDescription = Boolean(book.description) && book.description !== 'No description available.';
 
   return (
     <Card className="flex flex-col overflow-hidden h-full transition-shadow duration-300 hover:shadow-xl">
@@ -59,12 +80,23 @@ export default function BookCard({ book, priority = false }: { book: Book; prior
               ))}
             </div>
           )}
-          {book.description && book.description !== 'No description available.' && (
-            <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{book.description}</p>
+          {hasDescription && (
+            <button
+              type="button"
+              onClick={() => setShowDetails((v) => !v)}
+              aria-expanded={showDetails}
+              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+            >
+              {showDetails ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+              {showDetails ? 'Hide details' : 'Details'}
+            </button>
           )}
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-0 flex-grow">
+        {hasDescription && showDetails && (
+          <p className="mb-3 text-sm text-muted-foreground whitespace-pre-line">{toPlainText(book.description)}</p>
+        )}
         <p className="text-xs font-medium text-muted-foreground mb-2">Where to find it</p>
         <div className="flex flex-wrap gap-2">
           {book.sources.map((source) => (
