@@ -15,7 +15,7 @@ import {
 import AIRecommender from '@/components/ai-recommender';
 import Watchlist from '@/components/watchlist';
 import { WatchlistProvider, useWatchlist } from '@/components/watchlist-provider';
-import { BookMarked, Rss, Settings } from 'lucide-react';
+import { BookMarked, Sparkles, Settings } from 'lucide-react';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
 import { SettingsProvider } from '../settings-provider';
@@ -26,8 +26,8 @@ function SidebarContentWithState() {
     <>
       <SidebarGroup>
         <SidebarGroupLabel className="flex items-center gap-2">
-          <Rss className="size-4" />
-          AI Recommendations
+          <Sparkles className="size-4" />
+          Find Similar Books
         </SidebarGroupLabel>
         <AIRecommender />
       </SidebarGroup>

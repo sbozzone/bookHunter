@@ -24,7 +24,7 @@ function SubmitButton() {
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
           Thinking...
         </>
-      ) : 'Get Suggestions'}
+      ) : 'Find similar books'}
     </Button>
   );
 }
@@ -45,10 +45,13 @@ export default function AIRecommender() {
 
   return (
     <div className="space-y-4">
+      <p className="text-xs text-muted-foreground px-1">
+        Enter a book or author you already like and get AI suggestions for what to read next.
+      </p>
       <form action={formAction} className="space-y-2">
         <Input
           name="query"
-          placeholder="e.g., 'Dune' or 'Stephen King'"
+          placeholder="A book or author you like…"
           required
           className="bg-background"
         />
