@@ -1,7 +1,7 @@
 
 'use server';
 
-import { searchBooks } from '@/lib/google-books';
+import { searchBooks, suggestSimilarBooks } from '@/lib/google-books';
 import { z } from 'zod';
 import type { Book, BookFormat, SourceName } from '@/lib/types';
 import { mockBooks } from '@/lib/data';
@@ -24,11 +24,10 @@ export async function getSuggestions(prevState: any, formData: FormData) {
       };
     }
 
-    // Lazy-load the AI flow so the LLM provider is only initialized when the
-    // recommender is actually used — the fast search path never touches it.
-    const { suggestSimilarBooks } = await import('@/ai/flows/suggest-similar-books');
-    const result = await suggestSimilarBooks({ query: validatedFields.data.query });
-    return { suggestions: result.suggestions, message: null, error: null };
+    // Keyless recommender: similar books via Google Books / OpenLibrary, so the
+    // feature works without an ANTHROPIC_API_KEY (no LLM in this path).
+    const suggestions = await suggestSimilarBooks(validatedFields.data.query);
+    return { suggestions, message: null, error: null };
   } catch (error) {
     console.error('Error getting suggestions:', error);
     const errorMessage = error instanceof Error && error.message ? error.message : 'An unexpected error occurred.';

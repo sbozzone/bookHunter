@@ -46,7 +46,7 @@ export default function AIRecommender() {
   return (
     <div className="space-y-4">
       <p className="text-xs text-muted-foreground px-1">
-        Enter a book or author you already like and get AI suggestions for what to read next.
+        Enter a book or author you already like and get suggestions for what to read next.
       </p>
       <form action={formAction} className="space-y-2">
         <Input

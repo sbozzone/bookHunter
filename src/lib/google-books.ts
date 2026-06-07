@@ -130,9 +130,7 @@ function mapGoogleVolume(volume: GoogleVolume, sources?: SourceName[]): Book {
   };
 }
 
-async function searchGoogleBooks(query: string, options: SearchOptions): Promise<Book[]> {
-  const { genres = [], formats = [], sources, maxResults = DEFAULT_MAX_RESULTS } = options;
-
+async function googleVolumesRequest(query: string, maxResults: number): Promise<GoogleVolume[]> {
   const params = new URLSearchParams({
     q: query,
     maxResults: String(maxResults),
@@ -152,7 +150,14 @@ async function searchGoogleBooks(query: string, options: SearchOptions): Promise
   }
 
   const data = (await response.json()) as { items?: GoogleVolume[] };
-  return (data.items ?? [])
+  return data.items ?? [];
+}
+
+async function searchGoogleBooks(query: string, options: SearchOptions): Promise<Book[]> {
+  const { genres = [], formats = [], sources, maxResults = DEFAULT_MAX_RESULTS } = options;
+
+  const items = await googleVolumesRequest(query, maxResults);
+  return items
     .filter((v) => v.volumeInfo?.title)
     .filter((v) => matchesGenres(v.volumeInfo?.categories, genres))
     .map((v) => mapGoogleVolume(v, sources))
@@ -267,4 +272,98 @@ export async function searchBooks(query: string, options: SearchOptions = {}): P
 
   searchCache.set(cacheKey, { books, expires: Date.now() + CACHE_TTL_MS });
   return books;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Similar-books recommender (keyless)                                        */
+/* -------------------------------------------------------------------------- */
+
+async function suggestViaGoogle(query: string): Promise<string[]> {
+  // Find the seed book to learn its author and genre.
+  const seed = await googleVolumesRequest(query, 1);
+  const info = seed[0]?.volumeInfo;
+  const seedTitle = info?.title;
+  const author = info?.authors?.[0];
+  const category = info?.categories?.[0];
+
+  const titles = new Set<string>();
+  const collect = (items: GoogleVolume[]) => {
+    for (const v of items) {
+      const t = v.volumeInfo?.title;
+      if (t && t.toLowerCase() !== seedTitle?.toLowerCase()) {
+        titles.add(t);
+      }
+    }
+  };
+
+  // More by the same author, then more in the same genre.
+  if (author) {
+    collect(await googleVolumesRequest(`inauthor:"${author}"`, 10));
+  }
+  if (category && titles.size < 8) {
+    collect(await googleVolumesRequest(`subject:"${category}"`, 10));
+  }
+
+  return Array.from(titles).slice(0, 8);
+}
+
+async function suggestViaOpenLibrary(query: string): Promise<string[]> {
+  const seedParams = new URLSearchParams({ q: query, limit: '1', fields: 'title,author_name' });
+  const seedRes = await fetch(`${OPENLIBRARY_ENDPOINT}?${seedParams.toString()}`, {
+    next: { revalidate: 3600 },
+  });
+  if (!seedRes.ok) throw new Error(`OpenLibrary request failed: ${seedRes.status}`);
+  const seedData = (await seedRes.json()) as { docs?: OpenLibraryDoc[] };
+  const seed = seedData.docs?.[0];
+  const author = seed?.author_name?.[0];
+  if (!author) return [];
+
+  const params = new URLSearchParams({
+    author,
+    limit: '12',
+    fields: 'title',
+  });
+  const res = await fetch(`${OPENLIBRARY_ENDPOINT}?${params.toString()}`, {
+    next: { revalidate: 3600 },
+  });
+  if (!res.ok) throw new Error(`OpenLibrary request failed: ${res.status}`);
+  const data = (await res.json()) as { docs?: OpenLibraryDoc[] };
+
+  const titles = new Set<string>();
+  for (const d of data.docs ?? []) {
+    if (d.title && d.title.toLowerCase() !== seed?.title?.toLowerCase()) {
+      titles.add(d.title);
+    }
+  }
+  return Array.from(titles).slice(0, 8);
+}
+
+/**
+ * Suggest books similar to a title or author — no API key required. Uses Google
+ * Books (same author + same genre) with an automatic OpenLibrary fallback.
+ * Returns a list of titles the user can search for.
+ */
+export async function suggestSimilarBooks(query: string): Promise<string[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+
+  try {
+    const viaGoogle = await suggestViaGoogle(trimmed);
+    if (viaGoogle.length > 0) return viaGoogle;
+  } catch (error) {
+    console.warn(
+      'Google Books suggestions failed, falling back to OpenLibrary:',
+      error instanceof Error ? error.message : error
+    );
+  }
+
+  try {
+    return await suggestViaOpenLibrary(trimmed);
+  } catch (error) {
+    console.error(
+      'OpenLibrary suggestions failed:',
+      error instanceof Error ? error.message : error
+    );
+    return [];
+  }
 }
