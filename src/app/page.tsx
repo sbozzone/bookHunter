@@ -214,8 +214,8 @@ function SearchPage() {
   const [isSearching, setIsSearching] = useState(false);
   const hasPerformedInitialSearch = useRef(false);
 
-  // Decide what to show first: onboarding (first ever visit), the splash (every
-  // visit unless opted out), or straight to results (when arriving via search).
+  // Flow: splash first (every visit unless opted out) → tap → onboarding (first
+  // visit only) → main. Arriving via a search skips both.
   useEffect(() => {
     const query = searchParams.get('q') || '';
     setSubmittedQuery(query);
@@ -231,15 +231,23 @@ function SearchPage() {
       setIsLoading(false);
       return;
     }
-    if (!onboarded) {
-      setShowOnboarding(true);
-      setIsLoading(false);
-      return;
-    }
     if (hideSplash) {
+      // Splash suppressed; go straight to onboarding (first visit) or the app.
       setIsLoading(false);
+      if (!onboarded) {
+        setShowOnboarding(true);
+      }
     }
+    // Otherwise leave the splash showing (isLoading stays true).
   }, [searchParams]);
+
+  const isOnboarded = () => {
+    try {
+      return window.localStorage.getItem(ONBOARDED_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  };
 
   // Finish onboarding (preferences were already saved as the user toggled them).
   const completeOnboarding = useCallback(() => {
@@ -251,12 +259,15 @@ function SearchPage() {
     setShowOnboarding(false);
   }, []);
 
-  // Tap to dismiss for this visit only (splash returns next time).
+  // Tap to dismiss the splash for this visit; then onboard (first visit) or open.
   const dismissSplash = useCallback(() => {
     setIsLoading(false);
+    if (!isOnboarded()) {
+      setShowOnboarding(true);
+    }
   }, []);
 
-  // Permanently suppress the splash on future visits.
+  // Permanently suppress the splash on future visits, then continue the flow.
   const hideSplashForever = useCallback(() => {
     try {
       window.localStorage.setItem(SPLASH_HIDE_KEY, 'true');
@@ -264,6 +275,9 @@ function SearchPage() {
       /* ignore storage errors */
     }
     setIsLoading(false);
+    if (!isOnboarded()) {
+      setShowOnboarding(true);
+    }
   }, []);
 
   const performSearch = useCallback(async (query: string | null) => {
@@ -313,12 +327,12 @@ function SearchPage() {
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  if (showOnboarding) {
-    return <Onboarding onComplete={completeOnboarding} />;
-  }
-
   if (isLoading) {
     return <SplashScreen onDismiss={dismissSplash} onDontShowAgain={hideSplashForever} />;
+  }
+
+  if (showOnboarding) {
+    return <Onboarding onComplete={completeOnboarding} />;
   }
 
   const featuredHeading = preferredGenres.length > 0 ? 'Recommended for you' : 'Featured Books';
