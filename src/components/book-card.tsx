@@ -12,9 +12,11 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { Book, BookFormat, Source } from '@/lib/types';
-import { BookOpen, Book as BookIcon, ExternalLink, Plus, Minus } from 'lucide-react';
+import { BookOpen, Book as BookIcon, ExternalLink, Plus, Minus, ThumbsUp, ThumbsDown, BookCheck } from 'lucide-react';
 import { AddToWatchlistButton } from './add-to-watchlist-button';
 import { Button } from './ui/button';
+import { useBookFeedback, type Rating } from './book-feedback-provider';
+import { cn } from '@/lib/utils';
 
 // Only formats we can actually verify from the metadata API get a badge.
 // Audiobook availability is not verifiable, so it is surfaced through the
@@ -49,9 +51,37 @@ function toPlainText(html: string): string {
     .trim();
 }
 
+function RateButton({
+  active,
+  label,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Button
+      type="button"
+      variant={active ? 'default' : 'outline'}
+      size="sm"
+      className="h-7 gap-1.5 px-2 text-xs"
+      onClick={onClick}
+      aria-pressed={active}
+      title={label}
+    >
+      {children}
+    </Button>
+  );
+}
+
 export default function BookCard({ book, priority = false }: { book: Book; priority?: boolean }) {
   // Description is shown by default; users can collapse it with the toggle.
   const [showDetails, setShowDetails] = useState(true);
+  const { getRating, setRating } = useBookFeedback();
+  const rating: Rating | undefined = getRating(book);
   const badges = book.formats.filter((f): f is 'eBook' | 'Print' => f in verifiableFormatIcons);
   const hasDescription = Boolean(book.description) && book.description !== 'No description available.';
 
@@ -108,7 +138,19 @@ export default function BookCard({ book, priority = false }: { book: Book; prior
           <p className="mt-3 text-xs text-muted-foreground/70">ISBN: {book.isbn}</p>
         )}
       </CardContent>
-      <CardFooter className="p-4 pt-0 mt-auto">
+      <CardFooter className="p-4 pt-0 mt-auto flex flex-col items-stretch gap-2">
+        <div className="flex items-center gap-1.5">
+          <RateButton active={rating === 'up'} label="Good recommendation" onClick={() => setRating(book, 'up')}>
+            <ThumbsUp className={cn('h-3.5 w-3.5', rating === 'up' && 'fill-current')} />
+          </RateButton>
+          <RateButton active={rating === 'down'} label="Not for me — show fewer like this" onClick={() => setRating(book, 'down')}>
+            <ThumbsDown className={cn('h-3.5 w-3.5', rating === 'down' && 'fill-current')} />
+          </RateButton>
+          <RateButton active={rating === 'read'} label="Read it already — don't recommend again" onClick={() => setRating(book, 'read')}>
+            <BookCheck className="h-3.5 w-3.5" />
+            Read it
+          </RateButton>
+        </div>
         <AddToWatchlistButton book={book} />
       </CardFooter>
     </Card>

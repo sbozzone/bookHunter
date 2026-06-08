@@ -51,6 +51,7 @@ type SearchInputs = {
   preferredGenres: string[];
   preferredFormats: BookFormat[];
   preferredSources: SourceName[];
+  refresh?: number;
 };
 
 type GetBooksResult = {
@@ -58,11 +59,78 @@ type GetBooksResult = {
   error: string | null;
 };
 
+const FEATURED_COUNT = 8;
+
+/**
+ * Build the featured/recommended list. With multiple genres, fetch each genre
+ * separately and interleave the results so every chosen genre is represented
+ * (a single mashed-together query confuses the API). `refresh` pages further
+ * into the results for a fresh set.
+ */
+async function getFeatured(
+  genres: string[],
+  formats: BookFormat[] | undefined,
+  sources: SourceName[] | undefined,
+  refresh: number
+): Promise<Book[]> {
+  if (genres.length === 0) {
+    return searchBooks('classic literature bestsellers', {
+      formats,
+      sources,
+      maxResults: FEATURED_COUNT,
+      startIndex: refresh * FEATURED_COUNT,
+    });
+  }
+
+  if (genres.length === 1) {
+    return searchBooks(`${genres[0]} best books`, {
+      formats,
+      sources,
+      maxResults: FEATURED_COUNT,
+      startIndex: refresh * FEATURED_COUNT,
+    });
+  }
+
+  const used = genres.slice(0, 4);
+  const perGenreCount = Math.ceil(FEATURED_COUNT / used.length) + 2;
+  const lists = await Promise.all(
+    used.map((g) =>
+      searchBooks(`${g} best books`, {
+        formats,
+        sources,
+        maxResults: perGenreCount,
+        startIndex: refresh * perGenreCount,
+      })
+    )
+  );
+
+  // Interleave one book from each genre at a time, de-duplicating by title.
+  const seen = new Set<string>();
+  const blended: Book[] = [];
+  for (let i = 0; blended.length < FEATURED_COUNT; i++) {
+    let addedThisRound = false;
+    for (const list of lists) {
+      const book = list[i];
+      if (!book) continue;
+      addedThisRound = true;
+      const key = `${book.title}|${book.author}`.toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        blended.push(book);
+        if (blended.length >= FEATURED_COUNT) break;
+      }
+    }
+    if (!addedThisRound) break;
+  }
+  return blended;
+}
+
 export async function getBooks({
   query,
   preferredGenres,
   preferredFormats,
   preferredSources,
+  refresh = 0,
 }: SearchInputs): Promise<GetBooksResult> {
   try {
     const validatedFields = SearchSchema.safeParse({
@@ -88,15 +156,12 @@ export async function getBooks({
     // the static list as a last resort if the API is unavailable.
     if (data.query === 'Featured Books') {
       try {
-        const genres = data.genres ?? [];
-        const featuredQuery = genres.length
-          ? `${genres.slice(0, 3).join(' ')} best books`
-          : 'classic literature bestsellers';
-        const featured = await searchBooks(featuredQuery, {
-          formats: data.formats as BookFormat[] | undefined,
-          sources: data.sources as SourceName[] | undefined,
-          maxResults: 6,
-        });
+        const featured = await getFeatured(
+          data.genres ?? [],
+          data.formats as BookFormat[] | undefined,
+          data.sources as SourceName[] | undefined,
+          Math.max(0, Math.floor(refresh))
+        );
         return { books: featured.length ? featured : mockBooks, error: null };
       } catch {
         return { books: mockBooks, error: null };
