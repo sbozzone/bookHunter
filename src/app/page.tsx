@@ -10,9 +10,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import type { Book } from '@/lib/types';
 import { getBooks } from '@/app/actions';
-import { BookMarked, Check } from 'lucide-react';
+import { BookMarked, Check, RefreshCw } from 'lucide-react';
 import { availableGenres, availableFormats, sourceData } from '@/lib/data';
 import { useSettings } from '@/components/settings-provider';
+import { useBookFeedback } from '@/components/book-feedback-provider';
 import { useToast } from '@/hooks/use-toast';
 
 const SPLASH_HIDE_KEY = 'budget-book-hunter-hide-splash';
@@ -206,6 +207,7 @@ function SearchPage() {
   const router = useRouter();
   const pathname = usePathname();
   const { preferredGenres, preferredFormats, preferredSources, isInitialized: settingsAreInitialized } = useSettings();
+  const { isHidden } = useBookFeedback();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -213,6 +215,7 @@ function SearchPage() {
   const [displayedBooks, setDisplayedBooks] = useState<Book[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const hasPerformedInitialSearch = useRef(false);
+  const refreshSeedRef = useRef(0);
 
   // Flow: splash first (every visit unless opted out) → tap → onboarding (first
   // visit only) → main. Arriving via a search skips both.
@@ -280,8 +283,8 @@ function SearchPage() {
     }
   }, []);
 
-  const performSearch = useCallback(async (query: string | null) => {
-    if (query === null && hasPerformedInitialSearch.current) {
+  const performSearch = useCallback(async (query: string | null, force = false) => {
+    if (query === null && hasPerformedInitialSearch.current && !force) {
         return;
     }
 
@@ -290,7 +293,13 @@ function SearchPage() {
     const searchQuery = query === null ? 'Featured Books' : query;
 
     try {
-      const result = await getBooks({ query: searchQuery, preferredGenres, preferredFormats, preferredSources });
+      const result = await getBooks({
+        query: searchQuery,
+        preferredGenres,
+        preferredFormats,
+        preferredSources,
+        refresh: query === null ? refreshSeedRef.current : 0,
+      });
 
       if (result.error) {
         toast({ variant: 'destructive', title: 'Search Failed', description: result.error });
@@ -304,6 +313,12 @@ function SearchPage() {
       hasPerformedInitialSearch.current = true;
     }
   }, [preferredGenres, preferredFormats, preferredSources, toast]);
+
+  // Fetch a fresh set of recommendations (pages further into the results).
+  const handleRefresh = useCallback(() => {
+    refreshSeedRef.current += 1;
+    performSearch(null, true);
+  }, [performSearch]);
 
   useEffect(() => {
     // Hold off until onboarding is done so the first featured search reflects
@@ -335,31 +350,64 @@ function SearchPage() {
     return <Onboarding onComplete={completeOnboarding} />;
   }
 
+  const isFeatured = !submittedQuery;
   const featuredHeading = preferredGenres.length > 0 ? 'Recommended for you' : 'Featured Books';
+  // On the recommendations view, hide books the user thumbed down or marked read.
+  const visibleBooks = isFeatured ? displayedBooks.filter((b) => !isHidden(b)) : displayedBooks;
 
   return (
     <AppLayout>
       <Header onSearch={handleSearch} initialQuery={submittedQuery} isSearching={isSearching} />
       <main className="p-4 md:p-8">
-        <div className="mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
           <h2 className="text-3xl font-bold tracking-tight font-headline">
             {submittedQuery ? `Results for "${submittedQuery}"` : featuredHeading}
           </h2>
-          {!isSearching && displayedBooks.length > 0 && (
+          {!isSearching && visibleBooks.length > 0 && (
             <span className="text-sm text-muted-foreground">
-              {displayedBooks.length} {displayedBooks.length === 1 ? 'book' : 'books'}
+              {visibleBooks.length} {visibleBooks.length === 1 ? 'book' : 'books'}
             </span>
+          )}
+          {isFeatured && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="ml-auto gap-1.5"
+              onClick={handleRefresh}
+              disabled={isSearching}
+            >
+              <RefreshCw className={isSearching ? 'h-4 w-4 animate-spin' : 'h-4 w-4'} />
+              Refresh
+            </Button>
           )}
         </div>
         {isSearching ? (
           <BookSearchSkeleton />
-        ) : displayedBooks.length > 0 ? (
-          <BookResults books={displayedBooks} />
+        ) : visibleBooks.length > 0 ? (
+          <BookResults books={visibleBooks} />
+        ) : isFeatured ? (
+          <RecommendationsEmptyState onRefresh={handleRefresh} />
         ) : (
           <EmptyState query={submittedQuery} onSearch={handleSearch} />
         )}
       </main>
     </AppLayout>
+  );
+}
+
+function RecommendationsEmptyState({ onRefresh }: { onRefresh: () => void }) {
+  return (
+    <div className="mx-auto max-w-md py-16 text-center">
+      <BookMarked className="mx-auto h-12 w-12 text-muted-foreground/40" />
+      <h3 className="mt-4 text-lg font-semibold">No recommendations to show</h3>
+      <p className="mt-1 text-sm text-muted-foreground">
+        You&apos;ve rated everything here. Get a fresh set, or adjust your genres in Settings.
+      </p>
+      <Button variant="outline" size="sm" className="mt-4 gap-1.5" onClick={onRefresh}>
+        <RefreshCw className="h-4 w-4" />
+        Show me others
+      </Button>
+    </div>
   );
 }
 

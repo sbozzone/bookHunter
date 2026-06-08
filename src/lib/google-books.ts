@@ -30,6 +30,7 @@ export type SearchOptions = {
   formats?: BookFormat[];
   sources?: SourceName[];
   maxResults?: number;
+  startIndex?: number;
 };
 
 const SVG_PLACEHOLDER = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
@@ -130,10 +131,15 @@ function mapGoogleVolume(volume: GoogleVolume, sources?: SourceName[]): Book {
   };
 }
 
-async function googleVolumesRequest(query: string, maxResults: number): Promise<GoogleVolume[]> {
+async function googleVolumesRequest(
+  query: string,
+  maxResults: number,
+  startIndex = 0
+): Promise<GoogleVolume[]> {
   const params = new URLSearchParams({
     q: query,
     maxResults: String(maxResults),
+    startIndex: String(Math.max(0, startIndex)),
     printType: 'books',
     country: 'US',
   });
@@ -154,9 +160,9 @@ async function googleVolumesRequest(query: string, maxResults: number): Promise<
 }
 
 async function searchGoogleBooks(query: string, options: SearchOptions): Promise<Book[]> {
-  const { genres = [], formats = [], sources, maxResults = DEFAULT_MAX_RESULTS } = options;
+  const { genres = [], formats = [], sources, maxResults = DEFAULT_MAX_RESULTS, startIndex = 0 } = options;
 
-  const items = await googleVolumesRequest(query, maxResults);
+  const items = await googleVolumesRequest(query, maxResults, startIndex);
   return items
     .filter((v) => v.volumeInfo?.title)
     .filter((v) => matchesGenres(v.volumeInfo?.categories, genres))
@@ -198,11 +204,12 @@ function mapOpenLibraryDoc(doc: OpenLibraryDoc, sources?: SourceName[]): Book {
 }
 
 async function searchOpenLibrary(query: string, options: SearchOptions): Promise<Book[]> {
-  const { genres = [], formats = [], sources, maxResults = DEFAULT_MAX_RESULTS } = options;
+  const { genres = [], formats = [], sources, maxResults = DEFAULT_MAX_RESULTS, startIndex = 0 } = options;
 
   const params = new URLSearchParams({
     q: query,
     limit: String(maxResults),
+    offset: String(Math.max(0, startIndex)),
     fields: 'title,author_name,cover_i,isbn,subject,ebook_access,first_sentence',
   });
 
@@ -235,13 +242,14 @@ export async function searchBooks(query: string, options: SearchOptions = {}): P
   const trimmed = query.trim();
   if (!trimmed) return [];
 
-  const { genres = [], formats = [], sources, maxResults = DEFAULT_MAX_RESULTS } = options;
+  const { genres = [], formats = [], sources, maxResults = DEFAULT_MAX_RESULTS, startIndex = 0 } = options;
   const cacheKey = JSON.stringify({
     q: trimmed.toLowerCase(),
     genres,
     formats,
     sources,
     maxResults,
+    startIndex,
   });
 
   const cached = searchCache.get(cacheKey);
