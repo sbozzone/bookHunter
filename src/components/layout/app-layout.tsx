@@ -15,15 +15,28 @@ import {
 import AIRecommender from '@/components/ai-recommender';
 import Watchlist from '@/components/watchlist';
 import { WatchlistProvider, useWatchlist } from '@/components/watchlist-provider';
+import { AboutDialog } from '@/components/about-dialog';
 import { BookMarked, Sparkles, Settings } from 'lucide-react';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
 import { SettingsProvider } from '../settings-provider';
+import { APP_VERSION } from '@/lib/version';
 
 function SidebarContentWithState() {
   const { watchlist, removeFromWatchlist } = useWatchlist();
   return (
     <>
+      {/* About + Settings live at the top so the mobile keyboard never hides them. */}
+      <SidebarGroup className="py-1">
+        <AboutDialog />
+        <Button variant="ghost" className="w-full justify-start" asChild>
+          <Link href="/settings" className="flex items-center gap-2">
+            <Settings className="size-4" />
+            <span>Settings</span>
+          </Link>
+        </Button>
+      </SidebarGroup>
+      <Separator />
       <SidebarGroup>
         <SidebarGroupLabel className="flex items-center gap-2">
           <Sparkles className="size-4" />
@@ -61,13 +74,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </SidebarContent>
             <SidebarFooter>
                <Separator className="mb-2" />
-               <Button variant="ghost" className="w-full justify-start" asChild>
-                <Link href="/settings" className="flex items-center gap-2">
-                  <Settings className="size-4" />
-                  <span>Settings</span>
-                </Link>
-              </Button>
-              <p className="text-xs text-muted-foreground text-center mt-4">© 2026 The Budget Book Hunter</p>
+              <p className="text-xs text-muted-foreground text-center">
+                © 2026 The Budget Book Hunter · v{APP_VERSION}
+              </p>
             </SidebarFooter>
           </Sidebar>
           <SidebarInset>{children}</SidebarInset>
