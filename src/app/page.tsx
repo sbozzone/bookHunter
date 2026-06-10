@@ -41,7 +41,7 @@ function SplashScreen({
       <img
         src="/splash.png"
         alt="BudgetBookHunter"
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover md:object-contain"
       />
       <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-3">
         <p className="text-gray-600 dark:text-gray-400 text-sm bg-white dark:bg-slate-900 px-4 py-2 rounded-full">

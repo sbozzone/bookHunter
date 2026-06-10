@@ -6,7 +6,7 @@ sources (Libby, Hoopla, Amazon, Audible, YouTube, Google Play, PDF).
 ## Commands
 
 - Install: `npm install`
-- Dev server: `npm run dev` (http://localhost:9002)
+- Dev server: `npm run dev` (http://localhost:3000)
 - Type check: `npm run typecheck`
 - Production build: `npm run build`
 - Lint: `npm run lint`
@@ -34,6 +34,13 @@ sources (Libby, Hoopla, Amazon, Audible, YouTube, Google Play, PDF).
 - `ANTHROPIC_API_KEY` — required only for the "Find Similar Books" recommender.
 
 Set these in Vercel project settings for deployed environments.
+
+## Versioning
+
+`APP_VERSION` in `src/lib/version.ts` uses the format `YYYYMMDD.N` (revision
+date + revision number that day, starting at 1). **Bump it in every PR** —
+same-day PRs increment `N`; a new day resets to `.1`. It is shown in the
+sidebar footer and the About dialog.
 
 ## Git workflow
 
