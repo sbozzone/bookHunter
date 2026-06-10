@@ -3,9 +3,15 @@ import BookCard from './book-card';
 
 export default function BookResults({ books }: { books: Book[] }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
       {books.map((book, index) => (
-        <BookCard key={book.id} book={book} priority={index < 2} />
+        <div
+          key={book.id}
+          className="animate-fade-up h-full"
+          style={{ animationDelay: `${Math.min(index, 11) * 60}ms` }}
+        >
+          <BookCard book={book} priority={index < 2} />
+        </div>
       ))}
     </div>
   );

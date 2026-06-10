@@ -1,12 +1,15 @@
 'use client';
 
 import { Suspense } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/layout/app-layout';
 import Header from '@/components/layout/header';
 import BookResults from '@/components/book-results';
 import { WatchlistProvider, useWatchlist } from '@/components/watchlist-provider';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Bookmark, Compass } from 'lucide-react';
 
 function WatchlistContent() {
   const { watchlist, isInitialized } = useWatchlist();
@@ -30,9 +33,21 @@ function WatchlistContent() {
       {watchlist.length > 0 ? (
         <BookResults books={watchlist} />
       ) : (
-        <p className="text-center text-muted-foreground">
-          Your watchlist is empty. Add books from the main page to see them here.
-        </p>
+        <div className="animate-fade-up mx-auto max-w-md py-16 text-center">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-accent/15 text-primary">
+            <Bookmark className="h-8 w-8" />
+          </div>
+          <h3 className="mt-4 text-lg font-semibold">Your watchlist is empty</h3>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Tap the bookmark on any book to save it here for later.
+          </p>
+          <Button asChild className="mt-4 gap-1.5 rounded-full">
+            <Link href="/">
+              <Compass className="h-4 w-4" />
+              Discover books
+            </Link>
+          </Button>
+        </div>
       )}
     </>
   )
