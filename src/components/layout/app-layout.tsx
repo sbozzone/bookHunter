@@ -47,9 +47,13 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <SidebarProvider defaultOpen={true}>
           <Sidebar>
             <SidebarHeader>
-              <Link href="/" className="flex items-center gap-2">
-                <BookMarked className="size-8 text-primary" />
-                <h1 className="text-xl font-bold font-headline">The Budget Book Hunter</h1>
+              <Link href="/" className="flex items-center gap-2.5">
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-sm">
+                  <BookMarked className="size-5 text-primary-foreground" />
+                </div>
+                <h1 className="text-lg font-bold leading-tight font-headline">
+                  The Budget Book Hunter
+                </h1>
               </Link>
             </SidebarHeader>
             <SidebarContent className="p-0">
@@ -63,7 +67,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   <span>Settings</span>
                 </Link>
               </Button>
-              <p className="text-xs text-muted-foreground text-center mt-4">© 2024 The Budget Book Hunter</p>
+              <p className="text-xs text-muted-foreground text-center mt-4">© 2026 The Budget Book Hunter</p>
             </SidebarFooter>
           </Sidebar>
           <SidebarInset>{children}</SidebarInset>

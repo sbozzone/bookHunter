@@ -2,20 +2,15 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import type { Book, BookFormat, Source } from '@/lib/types';
-import { BookOpen, Book as BookIcon, ExternalLink, Plus, Minus, ThumbsUp, ThumbsDown, BookCheck } from 'lucide-react';
+import type { Book, BookFormat } from '@/lib/types';
+import { BookOpen, Book as BookIcon, ThumbsUp, ThumbsDown, BookCheck, ArrowUpRight } from 'lucide-react';
 import { AddToWatchlistButton } from './add-to-watchlist-button';
 import { Button } from './ui/button';
 import { useBookFeedback, type Rating } from './book-feedback-provider';
+import BookDetailDialog from './book-detail-dialog';
+import { SourceLinks } from './source-links';
 import { cn } from '@/lib/utils';
 
 // Only formats we can actually verify from the metadata API get a badge.
@@ -25,31 +20,6 @@ const verifiableFormatIcons: Partial<Record<BookFormat, React.ReactNode>> = {
   eBook: <BookOpen className="w-3.5 h-3.5" />,
   Print: <BookIcon className="w-3.5 h-3.5" />,
 };
-
-const SourceChip = ({ source }: { source: Source }) => (
-  <Button asChild variant="outline" size="sm" className="h-7 gap-1.5 px-2.5 text-xs">
-    <a href={source.url} target="_blank" rel="noopener noreferrer">
-      {source.name}
-      <ExternalLink className="h-3 w-3 opacity-60" />
-    </a>
-  </Button>
-);
-
-// Google Books descriptions may contain light HTML; render them as clean text.
-function toPlainText(html: string): string {
-  return html
-    .replace(/<br\s*\/?>/gi, '\n')
-    .replace(/<\/p>/gi, '\n\n')
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-}
 
 function RateButton({
   active,
@@ -65,11 +35,15 @@ function RateButton({
   return (
     <Button
       type="button"
-      variant={active ? 'default' : 'outline'}
+      variant="ghost"
       size="sm"
-      className="h-7 gap-1.5 px-2 text-xs"
+      className={cn(
+        'h-8 gap-1 px-2 text-xs text-muted-foreground',
+        active && 'bg-primary/10 text-primary hover:bg-primary/15 hover:text-primary'
+      )}
       onClick={onClick}
       aria-pressed={active}
+      aria-label={label}
       title={label}
     >
       {children}
@@ -78,81 +52,107 @@ function RateButton({
 }
 
 export default function BookCard({ book, priority = false }: { book: Book; priority?: boolean }) {
-  // Description is shown by default; users can collapse it with the toggle.
-  const [showDetails, setShowDetails] = useState(true);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const { getRating, setRating } = useBookFeedback();
   const rating: Rating | undefined = getRating(book);
   const badges = book.formats.filter((f): f is 'eBook' | 'Print' => f in verifiableFormatIcons);
-  const hasDescription = Boolean(book.description) && book.description !== 'No description available.';
 
   return (
-    <Card className="flex flex-col overflow-hidden h-full transition-shadow duration-300 hover:shadow-xl">
-      <CardHeader className="flex flex-row items-start gap-4 p-4">
-        <div className="w-[90px] h-[135px] flex-shrink-0 relative rounded-md overflow-hidden bg-muted">
-          <Image
-            src={book.coverUrl}
-            alt={`Cover of ${book.title}`}
-            fill
-            sizes="90px"
-            className="object-contain"
-            priority={priority}
-          />
-        </div>
-        <div className="flex-1 min-w-0">
-          <CardTitle className="text-lg font-headline leading-snug">{book.title}</CardTitle>
-          <CardDescription className="mt-0.5">by {book.author}</CardDescription>
-          {badges.length > 0 && (
-            <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              {badges.map((format) => (
-                <Badge key={format} variant="secondary" className="flex items-center gap-1 font-normal">
-                  {verifiableFormatIcons[format]}
-                  {format}
-                </Badge>
-              ))}
+    <>
+      <Card className="group flex h-full flex-col overflow-hidden border-border/60 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl">
+        <div className="relative">
+          {/* Cover hero: the book's own cover, blurred, doubles as an ambient backdrop */}
+          <button
+            type="button"
+            onClick={() => setDetailsOpen(true)}
+            aria-label={`View details for ${book.title}`}
+            className="relative block h-44 w-full overflow-hidden bg-muted"
+          >
+            <Image
+              src={book.coverUrl}
+              alt=""
+              aria-hidden
+              fill
+              sizes="400px"
+              className="scale-110 object-cover opacity-30 blur-2xl"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative h-36 w-24 overflow-hidden rounded-md shadow-lg ring-1 ring-black/10 transition-transform duration-300 group-hover:scale-105">
+                <Image
+                  src={book.coverUrl}
+                  alt={`Cover of ${book.title}`}
+                  fill
+                  sizes="96px"
+                  className="object-cover"
+                  priority={priority}
+                />
+              </div>
             </div>
-          )}
-          {hasDescription && (
-            <button
-              type="button"
-              onClick={() => setShowDetails((v) => !v)}
-              aria-expanded={showDetails}
-              className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-            >
-              {showDetails ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
-              {showDetails ? 'Hide details' : 'Details'}
+          </button>
+          <div className="absolute right-2.5 top-2.5">
+            <AddToWatchlistButton book={book} compact />
+          </div>
+        </div>
+
+        <CardContent className="flex flex-1 flex-col gap-3 p-4">
+          <div className="min-w-0">
+            <button type="button" onClick={() => setDetailsOpen(true)} className="block w-full text-left">
+              <h3 className="line-clamp-2 font-headline text-lg font-bold leading-snug transition-colors hover:text-primary">
+                {book.title}
+              </h3>
             </button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="p-4 pt-0 flex-grow">
-        {hasDescription && showDetails && (
-          <p className="mb-3 text-sm text-muted-foreground whitespace-pre-line">{toPlainText(book.description)}</p>
-        )}
-        <p className="text-xs font-medium text-muted-foreground mb-2">Where to find it</p>
-        <div className="flex flex-wrap gap-2">
-          {book.sources.map((source) => (
-            <SourceChip key={source.name} source={source} />
-          ))}
-        </div>
-        {book.isbn && (
-          <p className="mt-3 text-xs text-muted-foreground/70">ISBN: {book.isbn}</p>
-        )}
-      </CardContent>
-      <CardFooter className="p-4 pt-0 mt-auto flex flex-col items-stretch gap-2">
-        <div className="flex items-center gap-1.5">
-          <RateButton active={rating === 'up'} label="Good recommendation" onClick={() => setRating(book, 'up')}>
-            <ThumbsUp className={cn('h-3.5 w-3.5', rating === 'up' && 'fill-current')} />
-          </RateButton>
-          <RateButton active={rating === 'down'} label="Not for me — show fewer like this" onClick={() => setRating(book, 'down')}>
-            <ThumbsDown className={cn('h-3.5 w-3.5', rating === 'down' && 'fill-current')} />
-          </RateButton>
-          <RateButton active={rating === 'read'} label="Read it already — don't recommend again" onClick={() => setRating(book, 'read')}>
-            <BookCheck className="h-3.5 w-3.5" />
-            Read it
-          </RateButton>
-        </div>
-        <AddToWatchlistButton book={book} />
-      </CardFooter>
-    </Card>
+            <p className="mt-0.5 truncate text-sm text-muted-foreground">by {book.author}</p>
+            {badges.length > 0 && (
+              <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                {badges.map((format) => (
+                  <Badge key={format} variant="secondary" className="flex items-center gap-1 font-normal">
+                    {verifiableFormatIcons[format]}
+                    {format}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <SourceLinks sources={book.sources} />
+
+          <div className="mt-auto flex items-center justify-between border-t border-border/60 pt-3">
+            <div className="flex items-center gap-0.5">
+              <RateButton active={rating === 'up'} label="Good recommendation" onClick={() => setRating(book, 'up')}>
+                <ThumbsUp className={cn('h-3.5 w-3.5', rating === 'up' && 'fill-current')} />
+              </RateButton>
+              <RateButton
+                active={rating === 'down'}
+                label="Not for me — show fewer like this"
+                onClick={() => setRating(book, 'down')}
+              >
+                <ThumbsDown className={cn('h-3.5 w-3.5', rating === 'down' && 'fill-current')} />
+              </RateButton>
+              <RateButton
+                active={rating === 'read'}
+                label="Read it already — don't recommend again"
+                onClick={() => setRating(book, 'read')}
+              >
+                <BookCheck className="h-3.5 w-3.5" />
+                Read it
+              </RateButton>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 gap-1 px-2 text-xs text-muted-foreground hover:text-foreground"
+              onClick={() => setDetailsOpen(true)}
+            >
+              Details
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <BookDetailDialog book={book} open={detailsOpen} onOpenChange={setDetailsOpen} />
+    </>
   );
 }

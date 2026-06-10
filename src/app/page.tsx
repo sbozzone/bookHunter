@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import type { Book } from '@/lib/types';
 import { getBooks } from '@/app/actions';
-import { BookMarked, Check, RefreshCw } from 'lucide-react';
+import { BookMarked, Check, RefreshCw, Library, Headphones, Store, Search } from 'lucide-react';
 import { availableGenres, availableFormats, sourceData } from '@/lib/data';
 import { useSettings } from '@/components/settings-provider';
 import { useBookFeedback } from '@/components/book-feedback-provider';
@@ -98,13 +98,69 @@ function Onboarding({ onComplete }: { onComplete: () => void }) {
     toggleSource,
   } = useSettings();
 
+  const sections = [
+    {
+      icon: <Library className="h-4 w-4 text-primary" />,
+      title: 'Favorite genres',
+      subtitle: 'We blend picks from every genre you choose.',
+      content: (
+        <div className="flex flex-wrap gap-2">
+          {availableGenres.map((g) => (
+            <ChipToggle
+              key={g}
+              label={g}
+              selected={preferredGenres.includes(g)}
+              onClick={() => toggleGenre(g)}
+            />
+          ))}
+        </div>
+      ),
+    },
+    {
+      icon: <Headphones className="h-4 w-4 text-primary" />,
+      title: 'Preferred formats',
+      subtitle: 'Audiobooks, eBooks, print — pick any.',
+      content: (
+        <div className="flex flex-wrap gap-2">
+          {availableFormats.map((f) => (
+            <ChipToggle
+              key={f}
+              label={f}
+              selected={preferredFormats.includes(f)}
+              onClick={() => toggleFormat(f)}
+            />
+          ))}
+        </div>
+      ),
+    },
+    {
+      icon: <Store className="h-4 w-4 text-primary" />,
+      title: 'Where you borrow or buy',
+      subtitle: 'Only these sources will show on each book.',
+      content: (
+        <div className="flex flex-wrap gap-2">
+          {sourceData.map((s) => (
+            <ChipToggle
+              key={s.name}
+              label={s.name}
+              selected={preferredSources.includes(s.name)}
+              onClick={() => toggleSource(s.name)}
+            />
+          ))}
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="min-h-screen w-full overflow-y-auto bg-background flex items-start justify-center p-4">
       <div className="w-full max-w-2xl py-10">
-        <div className="text-center mb-8">
-          <BookMarked className="mx-auto h-12 w-12 text-primary" />
-          <h1 className="mt-3 text-3xl font-bold tracking-tight font-headline">
-            Welcome to The Budget Book Hunter
+        <div className="text-center mb-8 animate-fade-up">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-accent shadow-lg">
+            <BookMarked className="h-7 w-7 text-primary-foreground" />
+          </div>
+          <h1 className="mt-4 text-3xl font-bold tracking-tight font-headline">
+            Welcome to <span className="text-gradient">The Budget Book Hunter</span>
           </h1>
           <p className="mt-2 text-muted-foreground">
             Pick a few favorites and we&apos;ll tailor your home page. You can change these
@@ -112,47 +168,22 @@ function Onboarding({ onComplete }: { onComplete: () => void }) {
           </p>
         </div>
 
-        <section className="mb-6">
-          <h2 className="text-sm font-semibold mb-3">Favorite genres</h2>
-          <div className="flex flex-wrap gap-2">
-            {availableGenres.map((g) => (
-              <ChipToggle
-                key={g}
-                label={g}
-                selected={preferredGenres.includes(g)}
-                onClick={() => toggleGenre(g)}
-              />
-            ))}
-          </div>
-        </section>
-
-        <section className="mb-6">
-          <h2 className="text-sm font-semibold mb-3">Preferred formats</h2>
-          <div className="flex flex-wrap gap-2">
-            {availableFormats.map((f) => (
-              <ChipToggle
-                key={f}
-                label={f}
-                selected={preferredFormats.includes(f)}
-                onClick={() => toggleFormat(f)}
-              />
-            ))}
-          </div>
-        </section>
-
-        <section className="mb-8">
-          <h2 className="text-sm font-semibold mb-3">Where you borrow or buy</h2>
-          <div className="flex flex-wrap gap-2">
-            {sourceData.map((s) => (
-              <ChipToggle
-                key={s.name}
-                label={s.name}
-                selected={preferredSources.includes(s.name)}
-                onClick={() => toggleSource(s.name)}
-              />
-            ))}
-          </div>
-        </section>
+        <div className="space-y-4 mb-8">
+          {sections.map((section, i) => (
+            <section
+              key={section.title}
+              className="animate-fade-up rounded-xl border border-border/60 bg-card p-5 shadow-sm"
+              style={{ animationDelay: `${(i + 1) * 90}ms` }}
+            >
+              <div className="mb-3 flex items-center gap-2">
+                {section.icon}
+                <h2 className="text-sm font-semibold">{section.title}</h2>
+              </div>
+              <p className="mb-3 -mt-2 text-xs text-muted-foreground">{section.subtitle}</p>
+              {section.content}
+            </section>
+          ))}
+        </div>
 
         <div className="flex items-center justify-between gap-4">
           <button
@@ -173,28 +204,33 @@ function Onboarding({ onComplete }: { onComplete: () => void }) {
 
 function BookSearchSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
       {[...Array(6)].map((_, i) => (
-        <div key={i} className="flex flex-col space-y-3 rounded-lg border p-4">
-          <div className="flex flex-row items-start gap-4">
-             <Skeleton className="h-[135px] w-[90px] rounded-md" />
-             <div className="flex-1 space-y-2">
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-                <div className="flex gap-1.5 pt-1">
-                  <Skeleton className="h-5 w-16" />
-                  <Skeleton className="h-5 w-16" />
-                </div>
-                <Skeleton className="h-3 w-full mt-2" />
-                <Skeleton className="h-3 w-5/6" />
-             </div>
+        <div
+          key={i}
+          className="animate-fade-up flex flex-col overflow-hidden rounded-xl border border-border/60 bg-card"
+          style={{ animationDelay: `${i * 60}ms` }}
+        >
+          <div className="flex h-44 items-center justify-center bg-muted/60">
+            <Skeleton className="h-36 w-24 rounded-md" />
           </div>
-          <div className="flex flex-wrap gap-2">
-            {[...Array(4)].map((_, j) => (
-                <Skeleton key={j} className="h-7 w-20" />
-            ))}
+          <div className="flex flex-col gap-3 p-4">
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {[...Array(3)].map((_, j) => (
+                <Skeleton key={j} className="h-6 w-16 rounded-full" />
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {[...Array(3)].map((_, j) => (
+                <Skeleton key={j} className="h-6 w-16 rounded-full" />
+              ))}
+            </div>
+            <Skeleton className="mt-1 h-8 w-full" />
           </div>
-          <Skeleton className="h-10 w-full mt-auto" />
         </div>
       ))}
     </div>
@@ -359,8 +395,25 @@ function SearchPage() {
     <AppLayout>
       <Header onSearch={handleSearch} initialQuery={submittedQuery} isSearching={isSearching} />
       <main className="p-4 md:p-8">
+        {isFeatured && (
+          <section className="animate-fade-up mb-8">
+            <h1 className="font-headline text-3xl font-bold tracking-tight md:text-4xl">
+              Your next great read, <span className="text-gradient">for less.</span>
+            </h1>
+            <p className="mt-2 max-w-2xl text-muted-foreground">
+              Search any title or author and instantly see where to borrow it free — Libby,
+              Hoopla, PDF — or buy it cheap.
+            </p>
+          </section>
+        )}
         <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <h2 className="text-3xl font-bold tracking-tight font-headline">
+          <h2
+            className={
+              isFeatured
+                ? 'text-xl font-semibold tracking-tight font-headline'
+                : 'text-3xl font-bold tracking-tight font-headline'
+            }
+          >
             {submittedQuery ? `Results for "${submittedQuery}"` : featuredHeading}
           </h2>
           {!isSearching && visibleBooks.length > 0 && (
@@ -372,7 +425,7 @@ function SearchPage() {
             <Button
               variant="outline"
               size="sm"
-              className="ml-auto gap-1.5"
+              className="ml-auto gap-1.5 rounded-full"
               onClick={handleRefresh}
               disabled={isSearching}
             >
@@ -395,15 +448,25 @@ function SearchPage() {
   );
 }
 
+function EmptyStateIcon({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-accent/15 text-primary">
+      {children}
+    </div>
+  );
+}
+
 function RecommendationsEmptyState({ onRefresh }: { onRefresh: () => void }) {
   return (
-    <div className="mx-auto max-w-md py-16 text-center">
-      <BookMarked className="mx-auto h-12 w-12 text-muted-foreground/40" />
+    <div className="animate-fade-up mx-auto max-w-md py-16 text-center">
+      <EmptyStateIcon>
+        <BookMarked className="h-8 w-8" />
+      </EmptyStateIcon>
       <h3 className="mt-4 text-lg font-semibold">No recommendations to show</h3>
       <p className="mt-1 text-sm text-muted-foreground">
         You&apos;ve rated everything here. Get a fresh set, or adjust your genres in Settings.
       </p>
-      <Button variant="outline" size="sm" className="mt-4 gap-1.5" onClick={onRefresh}>
+      <Button variant="outline" size="sm" className="mt-4 gap-1.5 rounded-full" onClick={onRefresh}>
         <RefreshCw className="h-4 w-4" />
         Show me others
       </Button>
@@ -415,8 +478,10 @@ const EXAMPLE_SEARCHES = ['Dune', 'Project Hail Mary', 'Pride and Prejudice', 'S
 
 function EmptyState({ query, onSearch }: { query: string; onSearch: (q: string) => void }) {
   return (
-    <div className="mx-auto max-w-md py-16 text-center">
-      <BookMarked className="mx-auto h-12 w-12 text-muted-foreground/40" />
+    <div className="animate-fade-up mx-auto max-w-md py-16 text-center">
+      <EmptyStateIcon>
+        <Search className="h-8 w-8" />
+      </EmptyStateIcon>
       <h3 className="mt-4 text-lg font-semibold">
         {query ? `No books found for "${query}"` : 'Start your search'}
       </h3>
@@ -427,7 +492,13 @@ function EmptyState({ query, onSearch }: { query: string; onSearch: (q: string) 
       </p>
       <div className="mt-4 flex flex-wrap justify-center gap-2">
         {EXAMPLE_SEARCHES.map((example) => (
-          <Button key={example} variant="outline" size="sm" onClick={() => onSearch(example)}>
+          <Button
+            key={example}
+            variant="outline"
+            size="sm"
+            className="rounded-full"
+            onClick={() => onSearch(example)}
+          >
             {example}
           </Button>
         ))}
