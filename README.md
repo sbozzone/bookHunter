@@ -1,50 +1,41 @@
-# Welcome to Antigravity!
+# The Budget Book Hunter
 
-Welcome to your new developer home! Your Firebase Studio project has been successfully migrated to Antigravity.
+Discover books, keep a personal watchlist, and jump to library and store searches from one place. The app uses Google Books for primary search and automatically falls back to Open Library when Google Books is unavailable.
 
-Antigravity is our next-generation, agent-first IDE designed for high-velocity, autonomous development. Because Antigravity runs locally on your machine, you now have access to powerful local workflows and fully integrated AI editing capabilities that go beyond a cloud-based web IDE.
+## Run locally
 
-## Getting Started
-- **Run Locally**: Use the **Run and Debug** menu on the left sidebar to start your local development server.
-  - Or in a terminal run `npm run dev` and visit `http://localhost:9002`.
-- **Deploy**: You can deploy your changes to Firebase App Hosting by using the integrated terminal and standard Firebase CLI commands, just as you did in Firebase Studio.
-- **Cleanup**: Cleanup unused artifacts with the @cleanup workflow.
+```bash
+npm install
+cp .env.example .env
+npm run dev
+```
 
-Enjoy the next era of AI-driven development!
-
-File any bugs at https://github.com/firebase/firebase-tools/issues
+Open [http://localhost:3000](http://localhost:3000).
 
 ## Configuration
 
-Copy `.env.example` to `.env` and fill in values as needed. Every key is
-**optional** — the app runs without them, but features degrade as described.
+`GOOGLE_BOOKS_API_KEY` is optional but recommended. It gives the Google Books search API a dedicated quota. Without it, the app tries the shared keyless quota and then falls back to Open Library.
 
-| Variable | Purpose | Without it |
-| --- | --- | --- |
-| `GOOGLE_BOOKS_API_KEY` | Fast book search via the Google Books API. | Falls back to the shared keyless quota (often exhausted), then to OpenLibrary (works, but weaker descriptions/covers). **Recommended.** |
-| `ANTHROPIC_API_KEY` | The optional "suggest similar books" AI recommender. | Search still works; only the recommender returns an error. |
+```bash
+GOOGLE_BOOKS_API_KEY=
+```
 
-Set the same variables in your hosting provider (e.g. Vercel project settings)
-for deployed environments.
+Set the same variable in the deployment environment. Never expose it through a `NEXT_PUBLIC_` variable.
 
-### How search works
+## How it works
 
-Book search calls the **Google Books API** — a single request returns titles,
-authors, descriptions, cover images and ISBNs in well under a second. Source
-links (Amazon, Libby, Hoopla, Audible, etc.) are generated deterministically.
-If Google Books is unavailable or rate-limited, the app transparently falls
-back to the **OpenLibrary API** (no key required). The LLM is used only for the
-optional similar-books recommender, never for search.
+- Search returns book metadata from Google Books or Open Library.
+- Format filters only use metadata the providers can verify: print and eBook.
+- Libby and Hoopla links help readers check their own library; they do **not** assert that a title is available now.
+- Other source buttons open searches at the selected services. Verify price, format, and rights at the destination.
+- Watchlists and preferences are stored locally in the browser. They are not synced across devices.
 
-**Firebase Studio Export Date:** 2026-06-05
+## Checks
 
+```bash
+npm run typecheck
+npm run lint
+npm run build
+```
 
----
-
-## Previous README.md contents:
-
-i# Firebase Studio
-
-This is a NextJS starter in Firebase Studio.
-
-To get started, take a look at src/app/page.tsx.
+GitHub Actions runs these checks on pull requests and pushes to the default branch.

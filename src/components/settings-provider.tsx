@@ -28,6 +28,14 @@ const defaultSettings = {
     preferredSources: availableSources,
 }
 
+function isBookFormat(value: unknown): value is BookFormat {
+  return availableFormats.includes(value as BookFormat);
+}
+
+function isSourceName(value: unknown): value is SourceName {
+  return availableSources.includes(value as SourceName);
+}
+
 function setCookie(name: string, value: string, days: number) {
     let expires = "";
     if (days) {
@@ -49,14 +57,16 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       const item = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
       if (item) {
         const settings = JSON.parse(item);
-        if (settings.preferredGenres) {
-            setPreferredGenres(settings.preferredGenres);
+        if (Array.isArray(settings.preferredGenres)) {
+            setPreferredGenres(settings.preferredGenres.filter((genre: unknown): genre is string => typeof genre === 'string'));
         }
-        if (settings.preferredFormats) {
-            setPreferredFormats(settings.preferredFormats);
+        if (Array.isArray(settings.preferredFormats)) {
+            // Drop legacy "Audiobook" values. Availability is not supplied by
+            // either search provider, so it is no longer a valid result filter.
+            setPreferredFormats(settings.preferredFormats.filter(isBookFormat));
         }
-        if (settings.preferredSources) {
-            setPreferredSources(settings.preferredSources);
+        if (Array.isArray(settings.preferredSources)) {
+            setPreferredSources(settings.preferredSources.filter(isSourceName));
         }
       }
     } catch (error) {

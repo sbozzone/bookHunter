@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, Suspense, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import AppLayout from '@/components/layout/app-layout';
 import Header from '@/components/layout/header';
@@ -28,25 +29,20 @@ function SplashScreen({
 }) {
   return (
     <div
-      className="h-screen w-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900 fixed inset-0 z-50 cursor-pointer overflow-hidden"
-      onClick={onDismiss}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          onDismiss();
-        }
-      }}
+      className="h-screen w-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900 fixed inset-0 z-50 overflow-hidden"
     >
-      <img
+      <Image
         src="/splash.png"
         alt="BudgetBookHunter"
-        className="w-full h-full object-cover md:object-contain"
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover md:object-contain"
       />
       <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-3">
-        <p className="text-gray-600 dark:text-gray-400 text-sm bg-white dark:bg-slate-900 px-4 py-2 rounded-full">
-          Tap anywhere to continue
-        </p>
+        <Button type="button" onClick={onDismiss} className="rounded-full">
+          Continue
+        </Button>
         <button
           type="button"
           onClick={(e) => {
@@ -119,7 +115,7 @@ function Onboarding({ onComplete }: { onComplete: () => void }) {
     {
       icon: <Headphones className="h-4 w-4 text-primary" />,
       title: 'Preferred formats',
-      subtitle: 'Audiobooks, eBooks, print — pick any.',
+      subtitle: 'eBooks and print editions — pick either or both.',
       content: (
         <div className="flex flex-wrap gap-2">
           {availableFormats.map((f) => (
@@ -252,6 +248,7 @@ function SearchPage() {
   const [isSearching, setIsSearching] = useState(false);
   const hasPerformedInitialSearch = useRef(false);
   const refreshSeedRef = useRef(0);
+  const latestSearchRef = useRef(0);
 
   // Flow: splash first (every visit unless opted out) → tap → onboarding (first
   // visit only) → main. Arriving via a search skips both.
@@ -324,6 +321,8 @@ function SearchPage() {
         return;
     }
 
+    const searchId = latestSearchRef.current + 1;
+    latestSearchRef.current = searchId;
     setIsSearching(true);
 
     const searchQuery = query === null ? 'Featured Books' : query;
@@ -337,12 +336,16 @@ function SearchPage() {
         refresh: query === null ? refreshSeedRef.current : 0,
       });
 
+      if (searchId !== latestSearchRef.current) return;
+
       if (result.error) {
         toast({ variant: 'destructive', title: 'Search Failed', description: result.error });
       }
       setDisplayedBooks(result.books || []);
     } finally {
-      setIsSearching(false);
+      if (searchId === latestSearchRef.current) {
+        setIsSearching(false);
+      }
     }
 
     if (query === null) {
@@ -401,8 +404,7 @@ function SearchPage() {
               Your next great read, <span className="text-gradient">for less.</span>
             </h1>
             <p className="mt-2 max-w-2xl text-muted-foreground">
-              Search any title or author and instantly see where to borrow it free — Libby,
-              Hoopla, PDF — or buy it cheap.
+              Search any title or author, then check your library or explore trusted book sources.
             </p>
           </section>
         )}

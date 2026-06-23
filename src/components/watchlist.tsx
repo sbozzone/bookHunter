@@ -10,7 +10,7 @@ import { ScrollArea } from './ui/scroll-area';
 
 interface WatchlistProps {
   watchlist: Book[];
-  removeFromWatchlist: (bookId: string) => void;
+  removeFromWatchlist: (book: Book) => void;
 }
 
 export default function Watchlist({ watchlist, removeFromWatchlist }: WatchlistProps) {
@@ -49,7 +49,7 @@ export default function Watchlist({ watchlist, removeFromWatchlist }: WatchlistP
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7 shrink-0"
-                onClick={() => removeFromWatchlist(book.id)}
+                onClick={() => removeFromWatchlist(book)}
               >
                 <X className="h-4 w-4" />
                 <span className="sr-only">Remove from watchlist</span>

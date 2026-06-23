@@ -6,12 +6,23 @@ import type { Book } from '@/lib/types';
 interface WatchlistContextType {
   watchlist: Book[];
   addToWatchlist: (book: Book) => void;
-  removeFromWatchlist: (bookId: string) => void;
-  isBookInWatchlist: (bookId: string) => boolean;
+  removeFromWatchlist: (book: Book) => void;
+  isBookInWatchlist: (book: Book) => boolean;
   isInitialized: boolean;
 }
 
 const WatchlistContext = createContext<WatchlistContextType | undefined>(undefined);
+
+// Google and Open Library do not share identifiers. Their stable IDs are the
+// primary identity, while title + author keeps watchlists created by older
+// versions (which used random UUIDs) usable after this upgrade.
+function fallbackIdentity(book: Book): string {
+  return `${book.title}|${book.author}`.toLocaleLowerCase().trim();
+}
+
+function isSameBook(first: Book, second: Book): boolean {
+  return first.id === second.id || fallbackIdentity(first) === fallbackIdentity(second);
+}
 
 export function WatchlistProvider({ children }: { children: ReactNode }) {
   const [watchlist, setWatchlist] = useState<Book[]>([]);
@@ -43,19 +54,19 @@ export function WatchlistProvider({ children }: { children: ReactNode }) {
 
   const addToWatchlist = (book: Book) => {
     setWatchlist((prev) => {
-      if (prev.find((item) => item.id === book.id)) {
+      if (prev.some((item) => isSameBook(item, book))) {
         return prev;
       }
       return [...prev, book];
     });
   };
 
-  const removeFromWatchlist = (bookId: string) => {
-    setWatchlist((prev) => prev.filter((item) => item.id !== bookId));
+  const removeFromWatchlist = (book: Book) => {
+    setWatchlist((prev) => prev.filter((item) => !isSameBook(item, book)));
   };
 
-  const isBookInWatchlist = (bookId: string) => {
-    return watchlist.some((item) => item.id === bookId);
+  const isBookInWatchlist = (book: Book) => {
+    return watchlist.some((item) => isSameBook(item, book));
   };
 
   return (

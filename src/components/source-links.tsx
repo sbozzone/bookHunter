@@ -2,9 +2,10 @@ import type { Source, SourceName } from '@/lib/types';
 import { ExternalLink, BadgeDollarSign, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Sources where the book can be borrowed or found at no cost. These are the
-// app's reason to exist, so they get top billing and a distinct group label.
-const FREE_SOURCES: SourceName[] = ['Libby', 'Hoopla', 'PDF', 'YouTube'];
+// These links open searches, not verified inventory. Library services get a
+// distinct group because they can offer free borrowing after the reader signs
+// in with a participating library card.
+const LIBRARY_SOURCES: SourceName[] = ['Libby', 'Hoopla'];
 
 // Brand-flavored chip colors so users can spot their favorite source at a glance.
 const sourceStyles: Record<SourceName, string> = {
@@ -17,8 +18,8 @@ const sourceStyles: Record<SourceName, string> = {
   'Google Play': 'bg-emerald-100 text-emerald-900 hover:bg-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:hover:bg-emerald-500/25',
 };
 
-export function isFreeSource(name: SourceName): boolean {
-  return FREE_SOURCES.includes(name);
+export function isLibrarySource(name: SourceName): boolean {
+  return LIBRARY_SOURCES.includes(name);
 }
 
 export function SourcePill({ source }: { source: Source }) {
@@ -48,28 +49,28 @@ function GroupLabel({ icon, children }: { icon: React.ReactNode; children: React
 }
 
 export function SourceLinks({ sources, className }: { sources: Source[]; className?: string }) {
-  const free = sources.filter((s) => isFreeSource(s.name));
-  const paid = sources.filter((s) => !isFreeSource(s.name));
+  const library = sources.filter((s) => isLibrarySource(s.name));
+  const other = sources.filter((s) => !isLibrarySource(s.name));
 
   if (sources.length === 0) return null;
 
   return (
     <div className={cn('space-y-2', className)}>
-      {free.length > 0 && (
+      {library.length > 0 && (
         <div className="space-y-1.5">
-          <GroupLabel icon={<Sparkles className="h-3 w-3 text-primary" />}>Borrow free</GroupLabel>
+          <GroupLabel icon={<Sparkles className="h-3 w-3 text-primary" />}>Check your library</GroupLabel>
           <div className="flex flex-wrap gap-1.5">
-            {free.map((source) => (
+            {library.map((source) => (
               <SourcePill key={source.name} source={source} />
             ))}
           </div>
         </div>
       )}
-      {paid.length > 0 && (
+      {other.length > 0 && (
         <div className="space-y-1.5">
-          <GroupLabel icon={<BadgeDollarSign className="h-3 w-3" />}>Buy</GroupLabel>
+          <GroupLabel icon={<BadgeDollarSign className="h-3 w-3" />}>Other search links</GroupLabel>
           <div className="flex flex-wrap gap-1.5">
-            {paid.map((source) => (
+            {other.map((source) => (
               <SourcePill key={source.name} source={source} />
             ))}
           </div>

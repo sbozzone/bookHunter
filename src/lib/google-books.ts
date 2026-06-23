@@ -13,7 +13,6 @@
  *    the box without an API key.
  */
 
-import { v4 as uuidv4 } from 'uuid';
 import type { Book, BookFormat, SourceName } from '@/lib/types';
 import { buildSources } from '@/lib/sources';
 
@@ -21,8 +20,11 @@ const GOOGLE_BOOKS_ENDPOINT = 'https://www.googleapis.com/books/v1/volumes';
 const OPENLIBRARY_ENDPOINT = 'https://openlibrary.org/search.json';
 const DEFAULT_MAX_RESULTS = 20;
 const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+const MAX_CACHE_ENTRIES = 500;
+const REQUEST_TIMEOUT_MS = 8_000;
 
-// In-process cache for repeat searches within a server instance.
+// In-process cache for repeat searches within a server instance. This is
+// bounded so a stream of one-off queries cannot keep growing server memory.
 const searchCache = new Map<string, { books: Book[]; expires: number }>();
 
 export type SearchOptions = {
@@ -99,13 +101,12 @@ function extractGoogleIsbn(volumeInfo: GoogleVolume['volumeInfo']): string | und
  * Derive formats from volume metadata.
  * - Print: always (Google Books volumes are books).
  * - eBook: an epub/pdf is available or it is sold as an ebook.
- * - Audiobook: always offered as a searchable option (Audible/YouTube links);
- *   the metadata APIs do not expose audiobook availability.
+ * - Audiobook availability is deliberately omitted: neither metadata API
+ *   verifies it, so exposing it as a result filter would be misleading.
  */
 function deriveFormats(isEbook: boolean): BookFormat[] {
   const formats: BookFormat[] = ['Print'];
   if (isEbook) formats.push('eBook');
-  formats.push('Audiobook');
   return formats;
 }
 
@@ -120,7 +121,7 @@ function mapGoogleVolume(volume: GoogleVolume, sources?: SourceName[]): Book {
   );
 
   return {
-    id: uuidv4(),
+    id: `google:${volume.id}`,
     title,
     author,
     coverUrl: normalizeGoogleCover(info),
@@ -149,6 +150,7 @@ async function googleVolumesRequest(
 
   const response = await fetch(`${GOOGLE_BOOKS_ENDPOINT}?${params.toString()}`, {
     next: { revalidate: 3600 },
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
 
   if (!response.ok) {
@@ -175,6 +177,7 @@ async function searchGoogleBooks(query: string, options: SearchOptions): Promise
 /* -------------------------------------------------------------------------- */
 
 interface OpenLibraryDoc {
+  key?: string;
   title?: string;
   author_name?: string[];
   cover_i?: number;
@@ -188,9 +191,10 @@ function mapOpenLibraryDoc(doc: OpenLibraryDoc, sources?: SourceName[]): Book {
   const title = doc.title ?? 'Unknown Title';
   const author = doc.author_name?.join(', ') ?? 'Unknown Author';
   const isEbook = Boolean(doc.ebook_access && doc.ebook_access !== 'no');
+  const fallbackId = `${title}|${author}`.toLowerCase().trim();
 
   return {
-    id: uuidv4(),
+    id: doc.key ? `openlibrary:${doc.key}` : doc.isbn?.[0] ? `isbn:${doc.isbn[0]}` : `openlibrary:${fallbackId}`,
     title,
     author,
     coverUrl: doc.cover_i
@@ -210,11 +214,12 @@ async function searchOpenLibrary(query: string, options: SearchOptions): Promise
     q: query,
     limit: String(maxResults),
     offset: String(Math.max(0, startIndex)),
-    fields: 'title,author_name,cover_i,isbn,subject,ebook_access,first_sentence',
+    fields: 'key,title,author_name,cover_i,isbn,subject,ebook_access,first_sentence',
   });
 
   const response = await fetch(`${OPENLIBRARY_ENDPOINT}?${params.toString()}`, {
     next: { revalidate: 3600 },
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
 
   if (!response.ok) {
@@ -278,7 +283,16 @@ export async function searchBooks(query: string, options: SearchOptions = {}): P
     }
   }
 
-  searchCache.set(cacheKey, { books, expires: Date.now() + CACHE_TTL_MS });
+  const now = Date.now();
+  for (const [key, entry] of searchCache) {
+    if (entry.expires <= now) searchCache.delete(key);
+  }
+  while (searchCache.size >= MAX_CACHE_ENTRIES) {
+    const oldestKey = searchCache.keys().next().value;
+    if (!oldestKey) break;
+    searchCache.delete(oldestKey);
+  }
+  searchCache.set(cacheKey, { books, expires: now + CACHE_TTL_MS });
   return books;
 }
 
@@ -319,6 +333,7 @@ async function suggestViaOpenLibrary(query: string): Promise<string[]> {
   const seedParams = new URLSearchParams({ q: query, limit: '1', fields: 'title,author_name' });
   const seedRes = await fetch(`${OPENLIBRARY_ENDPOINT}?${seedParams.toString()}`, {
     next: { revalidate: 3600 },
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   if (!seedRes.ok) throw new Error(`OpenLibrary request failed: ${seedRes.status}`);
   const seedData = (await seedRes.json()) as { docs?: OpenLibraryDoc[] };
@@ -333,6 +348,7 @@ async function suggestViaOpenLibrary(query: string): Promise<string[]> {
   });
   const res = await fetch(`${OPENLIBRARY_ENDPOINT}?${params.toString()}`, {
     next: { revalidate: 3600 },
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   if (!res.ok) throw new Error(`OpenLibrary request failed: ${res.status}`);
   const data = (await res.json()) as { docs?: OpenLibraryDoc[] };

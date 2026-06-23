@@ -14,12 +14,11 @@ import {
 } from '@/components/ui/sidebar';
 import AIRecommender from '@/components/ai-recommender';
 import Watchlist from '@/components/watchlist';
-import { WatchlistProvider, useWatchlist } from '@/components/watchlist-provider';
+import { useWatchlist } from '@/components/watchlist-provider';
 import { AboutDialog } from '@/components/about-dialog';
 import { BookMarked, Sparkles, Settings } from 'lucide-react';
 import { Separator } from '../ui/separator';
 import { Button } from '../ui/button';
-import { SettingsProvider } from '../settings-provider';
 import { APP_VERSION } from '@/lib/version';
 
 function SidebarContentWithState() {
@@ -55,33 +54,29 @@ function SidebarContentWithState() {
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <SettingsProvider>
-      <WatchlistProvider>
-        <SidebarProvider defaultOpen={true}>
-          <Sidebar>
-            <SidebarHeader>
-              <Link href="/" className="flex items-center gap-2.5">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-sm">
-                  <BookMarked className="size-5 text-primary-foreground" />
-                </div>
-                <h1 className="text-lg font-bold leading-tight font-headline">
-                  The Budget Book Hunter
-                </h1>
-              </Link>
-            </SidebarHeader>
-            <SidebarContent className="p-0">
-               <SidebarContentWithState />
-            </SidebarContent>
-            <SidebarFooter>
-               <Separator className="mb-2" />
-              <p className="text-xs text-muted-foreground text-center">
-                © 2026 The Budget Book Hunter · v{APP_VERSION}
-              </p>
-            </SidebarFooter>
-          </Sidebar>
-          <SidebarInset>{children}</SidebarInset>
-        </SidebarProvider>
-      </WatchlistProvider>
-    </SettingsProvider>
+    <SidebarProvider defaultOpen={true}>
+      <Sidebar>
+        <SidebarHeader>
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-accent shadow-sm">
+              <BookMarked className="size-5 text-primary-foreground" />
+            </div>
+            <h1 className="text-lg font-bold leading-tight font-headline">
+              The Budget Book Hunter
+            </h1>
+          </Link>
+        </SidebarHeader>
+        <SidebarContent className="p-0">
+           <SidebarContentWithState />
+        </SidebarContent>
+        <SidebarFooter>
+           <Separator className="mb-2" />
+          <p className="text-xs text-muted-foreground text-center">
+            © 2026 The Budget Book Hunter · v{APP_VERSION}
+          </p>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>{children}</SidebarInset>
+    </SidebarProvider>
   );
 }
