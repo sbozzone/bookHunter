@@ -9,12 +9,12 @@ import { useToast } from '@/hooks/use-toast';
 export function AddToWatchlistButton({ book, compact = false }: { book: Book; compact?: boolean }) {
   const { addToWatchlist, removeFromWatchlist, isBookInWatchlist } = useWatchlist();
   const { toast } = useToast();
-  const inWatchlist = isBookInWatchlist(book.id);
+  const inWatchlist = isBookInWatchlist(book);
 
   const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (inWatchlist) {
-      removeFromWatchlist(book.id);
+      removeFromWatchlist(book);
       toast({
         title: 'Removed from Watchlist',
         description: `"${book.title}" was removed from your watchlist.`,

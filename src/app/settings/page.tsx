@@ -5,7 +5,7 @@ import { Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/layout/app-layout';
 import Header from '@/components/layout/header';
-import { SettingsProvider, useSettings } from '@/components/settings-provider';
+import { useSettings } from '@/components/settings-provider';
 import { ThemeSelector } from '@/components/theme-selector';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -56,7 +56,7 @@ function SettingsContent() {
       <Card>
         <CardHeader>
           <CardTitle>Search Preferences</CardTitle>
-          <CardDescription>Filter your search results based on your favorite genres and formats.</CardDescription>
+          <CardDescription>Filter results using genres and formats confirmed by the search providers.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
@@ -135,7 +135,7 @@ function SettingsContent() {
       <Card>
         <CardHeader>
             <CardTitle>Search Sources</CardTitle>
-            <CardDescription>Choose which sources appear as &ldquo;Where to find it&rdquo; links on each book.</CardDescription>
+            <CardDescription>Choose which search links appear on each book. Availability is confirmed after you open a source.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
             <div className="flex items-center space-x-2">
@@ -209,9 +209,7 @@ function SettingsPageComponent() {
 export default function SettingsPage() {
     return (
         <Suspense>
-            <SettingsProvider>
-                <SettingsPageComponent />
-            </SettingsProvider>
+            <SettingsPageComponent />
         </Suspense>
     )
 }

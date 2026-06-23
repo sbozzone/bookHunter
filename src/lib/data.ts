@@ -102,7 +102,10 @@ export const availableGenres = [
   'Literary Fiction',
 ];
 
-export const availableFormats: BookFormat[] = ['Audiobook', 'eBook', 'Print'];
+// Google Books and Open Library reliably tell us about print and ebook editions.
+// They do not provide audiobook availability, so it must not be presented as a
+// search filter that looks authoritative but matches every result.
+export const availableFormats: BookFormat[] = ['eBook', 'Print'];
 
 export const sourceData: SourceData[] = [
   { name: 'Amazon', formats: ['Audiobook', 'eBook', 'Print'], note: 'New and used books, ebooks, and audiobooks' },

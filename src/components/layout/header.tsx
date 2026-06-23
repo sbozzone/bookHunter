@@ -34,6 +34,7 @@ export default function Header({ onSearch, initialQuery = '', isSearching = fals
             <Input
               name="q"
               placeholder="Search any book or author…"
+              maxLength={120}
               className="h-10 rounded-full border-transparent bg-muted/60 pl-10 pr-9 transition-colors focus-visible:bg-background"
               value={query}
               onChange={(e) => setQuery(e.target.value)}

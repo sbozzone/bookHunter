@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import AppLayout from '@/components/layout/app-layout';
 import Header from '@/components/layout/header';
 import BookResults from '@/components/book-results';
-import { WatchlistProvider, useWatchlist } from '@/components/watchlist-provider';
+import { useWatchlist } from '@/components/watchlist-provider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Bookmark, Compass } from 'lucide-react';
@@ -80,9 +80,7 @@ function WatchlistPageComponent() {
 export default function WatchlistPage() {
   return (
     <Suspense>
-      <WatchlistProvider>
-        <WatchlistPageComponent />
-      </WatchlistProvider>
+      <WatchlistPageComponent />
     </Suspense>
   );
 }

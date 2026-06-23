@@ -2,16 +2,34 @@
 'use server';
 
 import { searchBooks, suggestSimilarBooks } from '@/lib/google-books';
+import { consumeRateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 import type { Book, BookFormat, SourceName } from '@/lib/types';
 import { mockBooks } from '@/lib/data';
 
+const MAX_QUERY_LENGTH = 120;
+const MAX_FILTER_VALUES = 12;
+
 const SuggestionSchema = z.object({
-  query: z.string().min(2, { message: 'Query must be at least 2 characters.' }),
+  query: z.string().trim().min(2, { message: 'Query must be at least 2 characters.' }).max(MAX_QUERY_LENGTH),
 });
 
-export async function getSuggestions(prevState: any, formData: FormData) {
+type SuggestionsResult = {
+  message: string | null;
+  suggestions: string[];
+  error: string | null;
+};
+
+export async function getSuggestions(_prevState: SuggestionsResult, formData: FormData): Promise<SuggestionsResult> {
   try {
+    if (!(await consumeRateLimit('suggestions', 15, 60_000))) {
+      return {
+        message: 'Too many recommendation requests. Please wait a minute and try again.',
+        suggestions: [],
+        error: 'Rate limit exceeded.',
+      };
+    }
+
     const validatedFields = SuggestionSchema.safeParse({
       query: formData.get('query'),
     });
@@ -40,10 +58,10 @@ export async function getSuggestions(prevState: any, formData: FormData) {
 }
 
 const SearchSchema = z.object({
-  query: z.string(),
-  genres: z.array(z.string()).optional(),
-  formats: z.array(z.enum(['Audiobook', 'eBook', 'Print'])).optional(),
-  sources: z.array(z.string()).optional(),
+  query: z.string().trim().min(1).max(MAX_QUERY_LENGTH),
+  genres: z.array(z.string().trim().min(1).max(50)).max(MAX_FILTER_VALUES).optional(),
+  formats: z.array(z.enum(['eBook', 'Print'])).max(2).optional(),
+  sources: z.array(z.enum(['Libby', 'Hoopla', 'PDF', 'Amazon', 'Audible', 'YouTube', 'Google Play'])).max(MAX_FILTER_VALUES).optional(),
 });
 
 type SearchInputs = {
@@ -133,6 +151,13 @@ export async function getBooks({
   refresh = 0,
 }: SearchInputs): Promise<GetBooksResult> {
   try {
+    if (!(await consumeRateLimit('books', 30, 60_000))) {
+      return {
+        error: 'Too many searches. Please wait a minute and try again.',
+        books: [],
+      };
+    }
+
     const validatedFields = SearchSchema.safeParse({
       query,
       genres: preferredGenres?.length ? preferredGenres : undefined,
