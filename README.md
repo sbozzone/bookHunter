@@ -26,7 +26,7 @@ Set the same variable in the deployment environment. Never expose it through a `
 
 - Search returns book metadata from Google Books or Open Library.
 - Format filters only use metadata the providers can verify: print and eBook.
-- Libby and Hoopla links help readers check their own library; they do **not** assert that a title is available now.
+- The Libby link opens Libby itself (and the installed app when the device supports it); users can then search their linked library. Libby and Hoopla links do **not** assert that a title is available now.
 - Other source buttons open searches at the selected services. Verify price, format, and rights at the destination.
 - Watchlists and preferences are stored locally in the browser. They are not synced across devices.
 

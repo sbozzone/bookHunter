@@ -10,14 +10,15 @@ import type { Source, SourceName } from '@/lib/types';
 import { availableSources } from '@/lib/data';
 
 /**
- * URL templates for each source. `TITLE` is replaced with the URL-encoded
- * book title (optionally including the author for better matches).
+ * URL templates for each source. Most accept a URL-encoded book title
+ * (optionally including the author for better matches). Libby has no
+ * library-independent title-search URL, so it opens Libby itself instead.
  */
 const sourceUrlTemplates: Record<SourceName, (q: string) => string> = {
   Amazon: (q) => `https://www.amazon.com/s?k=${q}`,
   Audible: (q) => `https://www.audible.com/search?keywords=${q}`,
   Hoopla: (q) => `https://www.hoopladigital.com/search?q=${q}`,
-  Libby: (q) => `https://www.google.com/search?q=site%3Alibbyapp.com+${q}`,
+  Libby: () => 'https://libbyapp.com/',
   YouTube: (q) => `https://www.youtube.com/results?search_query=${q}+audiobook`,
   'Google Play': (q) => `https://play.google.com/store/search?q=${q}&c=books`,
   PDF: (q) => `https://www.google.com/search?q=${q}+filetype%3Apdf`,

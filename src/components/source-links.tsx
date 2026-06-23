@@ -23,11 +23,15 @@ export function isLibrarySource(name: SourceName): boolean {
 }
 
 export function SourcePill({ source }: { source: Source }) {
+  const isLibby = source.name === 'Libby';
+
   return (
     <a
       href={source.url}
       target="_blank"
       rel="noopener noreferrer"
+      aria-label={isLibby ? 'Open Libby to search your library' : undefined}
+      title={isLibby ? 'Open Libby, then search your library for this title' : undefined}
       className={cn(
         'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
         sourceStyles[source.name] ?? 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -64,6 +68,11 @@ export function SourceLinks({ sources, className }: { sources: Source[]; classNa
               <SourcePill key={source.name} source={source} />
             ))}
           </div>
+          {library.some((source) => source.name === 'Libby') && (
+            <p className="text-xs text-muted-foreground">
+              Libby opens its app when supported; then search your linked library for this title.
+            </p>
+          )}
         </div>
       )}
       {other.length > 0 && (
